@@ -1,6 +1,6 @@
 "use client";
 
-import { content } from "@/data/content";
+import { content } from "@/data/HomeFooterContent";
 
 export default function HighlightsBanner() {
   // Duplicate highlights for seamless loop without DOM manipulation

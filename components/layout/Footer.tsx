@@ -1,7 +1,7 @@
 // components/layout/Footer.tsx
 import Link from "next/link";
 import { Linkedin, Facebook, Instagram, Youtube, Phone, MessageCircle } from "lucide-react";
-import { content } from "@/data/content";
+import { content } from "@/data/HomeFooterContent";
 
 export default function Footer() {
   const f = content.footer;

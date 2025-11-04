@@ -24,31 +24,10 @@ body {
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior:inherit
 }
 
-/* Custom scrollbar styling for mobile and all devices */
-::-webkit-scrollbar {
-  width: 8px;
-}
 
-::-webkit-scrollbar-track {
-  background: #f5f5f5;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #747981;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #5a5c61;
-}
-
-* { /* Firefox scrollbar styling */
-  scrollbar-color: #84888f #f5f5f5;   
-  scrollbar-width: thin;
-}
 
 /* ------------------------------------------------------------CUSTOM DESIGNS------------------------------------------------ */
 
@@ -56,6 +35,10 @@ html {
 *:focus-visible {
   outline: 2px solid #0C41AA;
   outline-offset: 2px;
+}
+
+button{
+  cursor: pointer;
 }
 
 /* Left-to-right sweeping overlay for the mobile drawer */

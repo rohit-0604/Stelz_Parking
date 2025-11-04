@@ -5,8 +5,9 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import FixedButtons from "@/components/common/FixedButtons";
 import CustomCursor from "@/components/common/CustomCursor";
+import ScrollRestore from "@/components/common/ScrollRestore";
 import { Poppins } from "next/font/google";
-import { content } from "@/data/content";
+import { content } from "@/data/HomeFooterContent";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         <Footer />
         <FixedButtons />
+        <ScrollRestore />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

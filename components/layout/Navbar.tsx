@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { JSX, useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { Menu, X } from "lucide-react";
-import { NAV, type NavLink } from "@/data/navcontent";
+import { NAV, type NavLink } from "@/data/NavContent";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 
 const BLUE_HEX = "#174b92";
@@ -98,7 +98,7 @@ export default function Navbar(): JSX.Element {
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
         {/* Top rail */}
-        <div className={`${BLUE_BG} h-[6px]`} />
+        <div className={`${BLUE_BG} h-1.5`} />
 
         {/* NAV BAR */}
         <nav className="flex items-center justify-between gap-4 px-4 md:px-7">
@@ -118,7 +118,7 @@ export default function Navbar(): JSX.Element {
           <div className="flex-1" />
 
           {/* Desktop menu */}
-          <ul className="hidden items-center gap-6 md:flex">
+          <ul className="hidden items-center gap-6 lg:flex">
             {NAV.map((item: NavLink) => (
               <DesktopTopItem
                 key={item.label}
@@ -131,7 +131,7 @@ export default function Navbar(): JSX.Element {
           {/* Mobile hamburger */}
           <button
             aria-label="Open menu"
-            className="md:hidden inline-flex size-12 items-center justify-center rounded-lg hover:bg-neutral-100"
+            className="lg:hidden inline-flex size-12 items-center justify-center rounded-lg hover:bg-neutral-100"
             onClick={(): void => setMobileOpen(true)}
           >
             <Menu color={BLUE_HEX} size={36} />
@@ -139,12 +139,12 @@ export default function Navbar(): JSX.Element {
         </nav>
 
         {/* Bottom rail */}
-        <div className={`${BLUE_BG} h-[6px]`} />
+        <div className={`${BLUE_BG} h-1.5`} />
 
         {/* Subtle fade edge under navbar (fades in when elevated) */}
         <motion.div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 -bottom-3 h-3 bg-gradient-to-b from-black/10 to-transparent"
+          className="pointer-events-none absolute inset-x-0 -bottom-3 h-3 bg-linear-to-b from-black/10 to-transparent"
           initial={{ opacity: 0 }}
           animate={{ opacity: elevated ? 1 : 0 }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
@@ -169,7 +169,7 @@ export default function Navbar(): JSX.Element {
             />
             <motion.aside
               key="drawer"
-              className="fixed left-0 top-0 z-50 h-[100dvh] w-[85%] max-w-96 bg-white shadow-2xl"
+              className="fixed left-0 top-0 z-50 h-dvh w-[85%] max-w-96 bg-white shadow-2xl"
               initial="hidden"
               animate="show"
               exit="exit"
@@ -260,7 +260,7 @@ function TopLink({
       <span className="inline-flex items-center">
         {item.label}
         {item.expandable && (
-          <span className="ml-[2px] text-[18px] font-medium leading-none text-black">+</span>
+          <span className="ml-0.5 text-[18px] font-medium leading-none text-black">+</span>
         )}
       </span>
     </Link>
@@ -308,7 +308,7 @@ function MenuList({ items }: { items: NavLink[] }): JSX.Element {
                   invisible translate-x-1 opacity-0
                   group-hover/sub:visible group-hover/sub:translate-x-0 group-hover/sub:opacity-100
                   transition-[opacity,transform,visibility] duration-300
-                  z-[60]
+                  z-60
                 "
               >
                 <div className="absolute -left-3 top-0 h-full w-3" />

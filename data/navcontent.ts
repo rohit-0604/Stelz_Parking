@@ -1,5 +1,3 @@
-// data/content.ts
-
 export type NavLink = {
   label: string;
   href?: `/${string}` | "/";

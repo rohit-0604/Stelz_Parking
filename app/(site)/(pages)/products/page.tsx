@@ -1,122 +1,163 @@
+import Link from "next/link";
+import Image from "next/image";
+import type { Metadata } from "next";
+import Script from "next/script";
+import PageHeader from "@/app/(site)/components/PageHeader";
+import { content } from "@/data/ProductsContent";
+
+export const metadata: Metadata = {
+  title: "Products | STELZ Parking Systems",
+  description:
+    "Explore STELZ parking products including stackers, pit stackers, puzzle parking, turn tables, car hoists and more. Browse features, photos and case studies.",
+  alternates: { canonical: "/products" },
+  openGraph: {
+    title: "Products | STELZ Parking Systems",
+    description:
+      "Explore STELZ parking products including stackers, pit stackers, puzzle parking, turn tables, car hoists and more.",
+    url: "/products",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Products | STELZ Parking Systems",
+    description:
+      "Explore STELZ parking products including stackers, pit stackers, puzzle parking, turn tables, car hoists and more.",
+  },
+  keywords: [
+    "parking systems",
+    "stack parking",
+    "pit stacker",
+    "puzzle parking",
+    "turn table",
+    "car hoist",
+    "mechanical parking",
+  ],
+};
+
+type Item = { id: number | string; image: string; title: string };
+const slugify = (s: string) =>
+  s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
 export default function ProductsPage() {
+  const items = (content?.models?.items || []) as Item[];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-[#1f67c8] to-[#1a4d8f] px-4 py-16 md:py-24">
-        <div className="mx-auto max-w-[1400px]">
-          <h1 className="mb-4 text-3xl md:text-5xl font-bold text-white">
-            Our Products
-          </h1>
-          <p className="text-lg text-blue-100">
-            Explore our comprehensive range of innovative parking solutions
-          </p>
-        </div>
-      </div>
+    <>
+      <PageHeader title="Products" breadcrumbLabel="Products" />
 
-      {/* Main Content */}
-      <div className="mx-auto max-w-[1400px] px-4 py-12 md:py-16">
-        <div className="grid gap-12 md:grid-cols-3">
-          {/* STACK PARKING Card */}
-          <div className="group rounded-lg bg-white p-8 shadow-lg transition-all hover:shadow-2xl hover:-translate-y-1">
-            <div className="mb-4 h-14 w-14 rounded-full bg-gradient-to-br from-[#1f67c8] to-[#153fa8] flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">📦</span>
-            </div>
-            <h2 className="mb-3 text-2xl font-bold text-gray-900">STACK PARKING</h2>
-            <p className="mb-6 text-gray-600">
-              Multi-level stacking solutions designed for maximum space optimization. Perfect for high-density urban environments.
-            </p>
-            <div className="mb-6 space-y-2 text-sm text-gray-600">
-              <p>✓ 3-Level Stack Parking</p>
-              <p>✓ 3-Level Pit Stacker</p>
-              <p>✓ Cantilever Parking</p>
-              <p>✓ Car Hoist</p>
-              <p>✓ Turn Table</p>
-            </div>
-            <a
-              href="/products/stack"
-              className="inline-block text-[#1f67c8] font-semibold transition-colors hover:text-[#153fa8]"
-            >
-              Explore →
-            </a>
-          </div>
+      {/* JSON-LD */}
+      <Script id="ld-products" type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "Products",
+          url: "https://stelzparking.com/products",
+          hasPart: items.map((it) => ({
+            "@type": "Product",
+            name: it.title,
+            url: `https://stelzparking.com/products/${slugify(it.title)}`,
+            image: `https://stelzparking.com${it.image}`,
+            brand: { "@type": "Brand", name: "STELZ" },
+          })),
+        })}
+      </Script>
 
-          {/* PUZZLE PARKING Card */}
-          <div className="group rounded-lg bg-white p-8 shadow-lg transition-all hover:shadow-2xl hover:-translate-y-1">
-            <div className="mb-4 h-14 w-14 rounded-full bg-gradient-to-br from-[#1f67c8] to-[#153fa8] flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">🧩</span>
-            </div>
-            <h2 className="mb-3 text-2xl font-bold text-gray-900">PUZZLE PARKING</h2>
-            <p className="mb-6 text-gray-600">
-              Innovative puzzle-based systems that deliver efficient parking with minimal footprint. Ideal for tight spaces.
-            </p>
-            <div className="mb-6 space-y-2 text-sm text-gray-600">
-              <p>✓ Pit Puzzle</p>
-              <p>✓ Puzzle Parking</p>
-              <p>✓ 3-Level Pit Puzzle</p>
-              <p>✓ OP-01</p>
-            </div>
-            <a
-              href="/products/puzzle"
-              className="inline-block text-[#1f67c8] font-semibold transition-colors hover:text-[#153fa8]"
-            >
-              Explore →
-            </a>
-          </div>
+      <main className="flex flex-col bg-white">
+        <section className="px-3 md:px-1 xl:px-35 py-8 md:py-26">
+          <div className="mx-auto max-w-[1500px] px-[5px]">
+            {/* 1 (mobile) -> 3 (tablet) -> 2 (desktop/laptop) */}
+            <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-3 lg:grid-cols-2">
+              {items.map((item) => {
+                const href = `/products/${slugify(item.title)}`;
+                return (
+                  <article
+                    key={item.id}
+                    className="group relative overflow-hidden bg-white"
+                  >
+                    {/* Image: link wraps the whole image */}
+                    <Link href={href} aria-label={`${item.title} image`} className="block">
+                      <div className="relative overflow-hidden">
+                        <div
+                          className="relative w-full md:h-80 lg:h-[440px]"
+                          style={{ aspectRatio: "16 / 9" }} // scales < md, fixed >= md
+                        >
+                          <Image
+                            src={item.image}
+                            alt={item.title}
+                            fill
+                            loading="lazy"
+                            className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                            sizes="(max-width: 640px) 100vw,
+                                   (max-width: 1024px) 33vw,  /* 3 cols on tablets */
+                                   50vw"                       /* 2 cols on desktops */
+                          />
+                        </div>
+                      </div>
+                    </Link>
 
-          {/* AUTOMATIC Card */}
-          <div className="group rounded-lg bg-white p-8 shadow-lg transition-all hover:shadow-2xl hover:-translate-y-1">
-            <div className="mb-4 h-14 w-14 rounded-full bg-gradient-to-br from-[#1f67c8] to-[#153fa8] flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">🤖</span>
-            </div>
-            <h2 className="mb-3 text-2xl font-bold text-gray-900">AUTOMATIC</h2>
-            <p className="mb-6 text-gray-600">
-              Fully automated parking solutions with advanced technology integration. Experience the future of parking today.
-            </p>
-            <div className="mb-6 space-y-2 text-sm text-gray-600">
-              <p>✓ Rotatory</p>
-              <p>✓ OP-01</p>
-              <p>✓ Cantilever Parking</p>
-            </div>
-            <a
-              href="/products/automatic"
-              className="inline-block text-[#1f67c8] font-semibold transition-colors hover:text-[#153fa8]"
-            >
-              Explore →
-            </a>
-          </div>
-        </div>
+                    {/* LABEL — compact, left-attached, exact look */}
+                    <div
+                      className="
+                        pointer-events-none absolute left-0 bottom-4
+                        -translate-x-4 opacity-0
+                        transition-all duration-300 ease-out
+                        group-hover:translate-x-0 group-hover:opacity-100
+                      "
+                    >
+                      <div
+                        className="
+                          relative pointer-events-auto inline-flex items-center gap-10
+                          bg-white p-3
+                          shadow-[0_6px_18px_rgba(0,0,0,0.12)]
+                        "
+                      >
+                        {/* 3px BLACK STRIP only across the label */}
+                        <span className="absolute -top-[3px] left-0 right-0 h-[5px] bg-black" />
 
-        {/* Additional Section */}
-        <div className="mt-16 rounded-lg bg-white p-8 shadow-lg md:p-12">
-          <h2 className="mb-6 text-3xl font-bold text-gray-900">Why Choose STELZ Products?</h2>
-          <div className="grid gap-8 md:grid-cols-2">
-            <div>
-              <h3 className="mb-3 text-lg font-semibold text-[#1f67c8]">Innovation</h3>
-              <p className="text-gray-600">
-                Our products are designed with cutting-edge technology to ensure maximum efficiency and reliability.
-              </p>
-            </div>
-            <div>
-              <h3 className="mb-3 text-lg font-semibold text-[#1f67c8]">Sustainability</h3>
-              <p className="text-gray-600">
-                Built with environmental consciousness, our solutions minimize energy consumption and maximize space.
-              </p>
-            </div>
-            <div>
-              <h3 className="mb-3 text-lg font-semibold text-[#1f67c8]">Customization</h3>
-              <p className="text-gray-600">
-                Every project is unique. We offer tailored solutions to meet your specific parking needs.
-              </p>
-            </div>
-            <div>
-              <h3 className="mb-3 text-lg font-semibold text-[#1f67c8]">Support</h3>
-              <p className="text-gray-600">
-                Our expert team provides complete support from installation to maintenance and beyond.
-              </p>
+                        {/* Title (blue when label is hovered) */}
+                        <Link
+                          href={href}
+                          className="
+                            text-[24px] font-medium leading-none
+                            text-gray-900 hover:text-[#006ddb] focus:text-[#006ddb]
+                            focus:outline-none
+                          "
+                          aria-label={`${item.title} details`}
+                        >
+                          {item.title}
+                        </Link>
+
+                        {/* Plus chip (white circle w/ light border; turns blue on hover) */}
+                        <Link
+                          href={href}
+                          aria-label={`Open ${item.title}`}
+                          className="
+                            grid place-items-center size-9 rounded-full
+                            border border-gray-200 bg-white
+                            transition-colors duration-200
+                            hover:bg-[#006ddb] hover:border-[#006ddb] focus:bg-[#006ddb]
+                            outline-none
+                          "
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="size-5 text-gray-900 transition-colors duration-200 hover:text-white focus:text-white"
+                            fill="currentColor"
+                            aria-hidden="true"
+                          >
+                            <path d="M11 5a1 1 0 0 1 2 0v6h6a1 1 0 1 1 0 2h-6v6a1 1 0 1 1-2 0v-6H5a1 1 0 1 1 0-2h6V5z" />
+                          </svg>
+                        </Link>
+                      </div>
+                    </div>
+
+                  </article>
+                );
+              })}
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </section>
+      </main>
+    </>
   );
 }

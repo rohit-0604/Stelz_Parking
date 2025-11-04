@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { content } from "@/data/content";
+import { content } from "@/data/HomeFooterContent";
 
 const baseUrl = content.meta.siteUrl;
 const defaultOgImage = content.meta.ogImage;

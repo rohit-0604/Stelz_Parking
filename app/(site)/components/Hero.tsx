@@ -1,6 +1,6 @@
 "use client";
 
-import { content } from "@/data/content";
+import { content } from "@/data/HomeFooterContent";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -42,7 +42,7 @@ export default function Hero() {
             onLoad={() => setIsLoading(false)}
           />
           {/* Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/30" />
+          <div className="absolute inset-0 bg-linear-to-b from-black/30 to-black/30" />
         </motion.div>
       </AnimatePresence>
 
