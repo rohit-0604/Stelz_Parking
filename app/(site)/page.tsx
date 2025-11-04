@@ -6,11 +6,11 @@ import ParkingModelsCarousel from "./components/ParkingModelsCarousel";
 
 export default function Home() {
   return (
-    <>
+    <main className="flex flex-col">
       <Hero />
       <HighlightsBanner />
       <FootprintCarousel />
       <ParkingModelsCarousel />
-    </>
+    </main>
   );
 }

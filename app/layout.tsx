@@ -5,7 +5,17 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import FixedButtons from "@/components/common/FixedButtons";
 import CustomCursor from "@/components/common/CustomCursor";
+import { Poppins } from "next/font/google";
 import { content } from "@/data/content";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-sans",
+  preload: true,
+  fallback: ["system-ui", "arial"],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(content.meta.siteUrl),
@@ -63,11 +73,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="min-h-dvh antialiased">
+    <html lang="en" className={poppins.variable}>
+      <body className="bg-white text-neutral-900 font-sans">
         <CustomCursor />
         <Navbar />
-        <main className="pt-[83px]">{children}</main>
+          {children}
         <Footer />
         <FixedButtons />
         <script

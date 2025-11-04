@@ -3,424 +3,415 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { JSX, useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { Menu, X } from "lucide-react";
-import { NAV, type NavLink } from "@/data/content";
+import { NAV, type NavLink } from "@/data/navcontent";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 
-function isActive(pathname: string, href?: string) {
+const BLUE_HEX = "#174b92";
+const BLUE_BG = "bg-[#174b92]";
+
+/* =======================
+   Animation timing knobs
+   ======================= */
+const ANIM = {
+  overlayDuration: 0.5,
+  drawerDuration: 0.5,
+  drawerDelay: 0.4, // entry: overlay -> drawer | exit: drawer -> overlay
+  dropdownDuration: 0.32,
+  accordionDuration: 0.26,
+} as const;
+
+/** items that are section headers (no page) and must not navigate on click */
+const PRODUCTS_PARENT_ONLY = new Set<string>([
+  "/products/stack",
+  "/products/puzzle",
+  "/products/automatic",
+]);
+
+function isActive(pathname: string, href?: string): boolean {
   if (!href) return false;
   if (href === "/") return pathname === "/";
   return pathname.startsWith(href);
 }
+function hasKids(i: NavLink): i is NavLink & { children: NavLink[] } {
+  return Array.isArray(i.children) && i.children.length > 0;
+}
+function isProductsParentOnly(item: NavLink): boolean {
+  return !!item.href && PRODUCTS_PARENT_ONLY.has(item.href);
+}
 
-export default function Navbar() {
+/* ------- Framer Motion variants (symmetric entry & exit) ------- */
+const dropVariants: Variants = {
+  hidden: { opacity: 0, y: 10, pointerEvents: "none" },
+  show: {
+    opacity: 1,
+    y: 0,
+    pointerEvents: "auto",
+    transition: { duration: ANIM.dropdownDuration, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+const overlayVariants: Variants = {
+  hidden: { width: 0, opacity: 0 },
+  show: {
+    width: "100vw",
+    opacity: 1,
+    transition: { duration: ANIM.overlayDuration, ease: "easeOut", delay: 0 },
+  },
+  exit: {
+    width: 0,
+    opacity: 0,
+    transition: { duration: ANIM.overlayDuration, ease: "easeIn", delay: ANIM.drawerDelay },
+  },
+};
+const drawerVariants: Variants = {
+  hidden: { x: "-100%" },
+  show: {
+    x: 0,
+    transition: { duration: ANIM.drawerDuration, ease: [0.22, 1, 0.36, 1], delay: ANIM.drawerDelay },
+  },
+  exit: {
+    x: "-100%",
+    transition: { duration: ANIM.drawerDuration, ease: "easeIn", delay: 0 },
+  },
+};
+
+export default function Navbar(): JSX.Element {
   const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [openDesktop, setOpenDesktop] = useState<string | null>(null);
-  const [openMobile, setOpenMobile] = useState<Record<string, boolean>>({});
+  const [mobileOpen, setMobileOpen] = useState<boolean>(false);
+  const [elevated, setElevated] = useState<boolean>(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
+    const onScroll = (): void => setElevated(window.scrollY > 2);
     onScroll();
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    setMobileOpen(false);
-    setOpenMobile({});
-    setOpenDesktop(null);
-  }, [pathname]);
-
-  // Desktop dropdown handlers
-  const handleMouseEnter = (key: string) => {
-    setOpenDesktop(key);
-  };
-
-  const handleMouseLeave = () => {
-    setOpenDesktop(null);
-  };
-
-  // Mobile dropdown toggle
-  const toggleMobile = (key: string) => {
-    setOpenMobile((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const DesktopNavItem = ({ item, index }: { item: NavLink; index: number }) => {
-    const key = `desktop-${index}-${item.label}`;
-    const hasChildren = !!item.children?.length;
-    const active = isActive(pathname, item.href);
-
-    return (
-      <li
-        className="relative"
-        onMouseEnter={() => hasChildren && handleMouseEnter(key)}
-        onMouseLeave={handleMouseLeave}
-      >
-        {hasChildren ? (
-          <Link
-            href={item.href || "#"}
-            className="flex items-center gap-1 px-4 py-2 text-[15px] font-medium uppercase tracking-wide text-black transition-colors"
-            style={{ "--hover-color": "#0C41AA" } as any}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#0C41AA")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "black")}
-            onClick={(e) => {
-              if (!item.href) e.preventDefault();
-            }}
-          >
-            {item.label}
-            <span
-              className="text-lg font-medium cursor-pointer"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleMouseEnter(key);
-              }}
-            >
-              +
-            </span>
-          </Link>
-        ) : (
-          <Link
-            href={item.href!}
-            className="block px-4 py-2 text-[15px] font-medium uppercase tracking-wide transition-colors text-black"
-            style={{ color: active ? "#0C41AA" : "black" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#0C41AA")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = active ? "#0C41AA" : "black")}
-          >
-            {item.label}
-          </Link>
-        )}
-
-        {/* Dropdown Menu */}
-        {hasChildren && openDesktop === key && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute left-0 top-full z-50 mt-0 min-w-[220px] bg-white shadow-lg"
-          >
-            {item.children!.map((child, i) => (
-              <DropdownItem key={`${key}-child-${i}`} item={child} pathname={pathname} />
-            ))}
-          </motion.div>
-        )}
-      </li>
-    );
-  };
-
   return (
     <>
-      {/* Desktop Navbar */}
-      <header className="fixed inset-x-0 top-0 z-50 hidden bg-white lg:block">
-        {/* Blue top line */}
-        <div className="h-1.5 w-full bg-[#0f4fa3]" />
+      <motion.header
+        className="fixed inset-x-0 top-0 z-50 bg-white"
+        animate={{
+          boxShadow: elevated ? "0 8px 20px rgba(0,0,0,0.06)" : "0 0 0 rgba(0,0,0,0)",
+        }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {/* Top rail */}
+        <div className={`${BLUE_BG} h-[6px]`} />
 
-        <nav
-          className={`mx-auto flex h-21 max-w-7xl items-center justify-between px-6 transition-shadow ${
-            scrolled ? "shadow-md" : ""
-          }`}
-        >
-          {/* Logo */}
-          <Link href="/" className="flex items-center py-2">
+        {/* NAV BAR */}
+        <nav className="flex items-center justify-between gap-4 px-4 md:px-7">
+          {/* LEFT: Logo */}
+          <div className="flex min-w-[200px] items-center gap-3">
             <Image
               src="/assets/home/Logo.jpg"
-              alt="STELZ Multiparking"
-              width={160}
-              height={45}
+              alt="STELZ"
+              width={800}
+              height={200}
               priority
-              quality={95}
-              unoptimized
+              className="h-20 w-auto"
             />
-          </Link>
+          </div>
 
-          {/* Desktop Navigation */}
-          <ul className="flex items-center gap-1">
-            {NAV.map((item, i) => (
-              <DesktopNavItem item={item} index={i} key={`nav-${i}`} />
+          {/* push links right */}
+          <div className="flex-1" />
+
+          {/* Desktop menu */}
+          <ul className="hidden items-center gap-6 md:flex">
+            {NAV.map((item: NavLink) => (
+              <DesktopTopItem
+                key={item.label}
+                item={item}
+                active={isActive(pathname, item.href)}
+              />
             ))}
           </ul>
-        </nav>
 
-        {/* Blue bottom line */}
-        <div className="h-1.5 w-full bg-[#0C41AA]" />
-      </header>
-
-      {/* Mobile Navbar */}
-      <header className="fixed inset-x-0 top-0 z-50 block w-full bg-white lg:hidden">
-        {/* Blue top line */}
-        <div className="h-1.5 w-full bg-[#0f4fa3]" />
-
-        <nav className="flex h-20 w-full items-center justify-between px-4 sm:px-6">
-          {/* Logo */}
-          <Link href="/" className="flex items-center py-2">
-            <Image
-              src="/assets/home/Logo.jpg"
-              alt="STELZ Multiparking"
-              width={140}
-              height={40}
-              priority
-              quality={95}
-              unoptimized
-            />
-          </Link>
-
-          {/* Mobile Hamburger */}
+          {/* Mobile hamburger */}
           <button
-            className="p-2"
-            style={{ color: "#0C41AA" }}
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
+            aria-label="Open menu"
+            className="md:hidden inline-flex size-12 items-center justify-center rounded-lg hover:bg-neutral-100"
+            onClick={(): void => setMobileOpen(true)}
           >
-            {mobileOpen ? <X className="h-8 w-8" /> : <Menu className="h-8 w-8" />}
+            <Menu color={BLUE_HEX} size={36} />
           </button>
         </nav>
 
-        {/* Blue bottom line */}
-        <div className="h-1.5 w-full bg-[#0C41AA]" />
+        {/* Bottom rail */}
+        <div className={`${BLUE_BG} h-[6px]`} />
 
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {mobileOpen && (
-            <>
-              {/* Gray Overlay that slides from left */}
-              <motion.div
-                initial={{ x: "-100%", opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: "-100%", opacity: 0 }}
-                transition={{ type: "tween", duration: 0.6 }}
-                className="fixed inset-0 z-39 bg-gray-400/30 pointer-events-none"
-              />
+        {/* Subtle fade edge under navbar (fades in when elevated) */}
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 -bottom-3 h-3 bg-gradient-to-b from-black/10 to-transparent"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: elevated ? 1 : 0 }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </motion.header>
 
-              {/* Black Overlay behind gray overlay */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ type: "tween", duration: 0.4, delay: 0.2 }}
-                className="fixed inset-0 z-40 bg-black/50"
-                onClick={() => setMobileOpen(false)}
-              />
+      {/* space under fixed header */}
+      <div className="pt-[88px]" />
 
-              {/* Sidebar */}
-              <motion.div
-                initial={{ x: "-100%" }}
-                animate={{ x: 0 }}
-                exit={{ x: "-100%" }}
-                transition={{ type: "tween", duration: 0.5, delay: 0.2 }}
-                className="fixed left-0 top-0 z-50 h-full w-[280px] overflow-y-auto bg-white shadow-xl"
-              >
-                {/* Mobile Header */}
-                <div className="flex items-center justify-between border-b border-gray-200 p-4">
-                  <Image
-                    src="/assets/home/Logo.jpg"
-                    alt="STELZ"
-                    width={120}
-                    height={32}
-                  />
-                  <button onClick={() => setMobileOpen(false)} aria-label="Close menu" style={{ color: "#0C41AA" }}>
-                    <X className="h-8 w-8" />
-                  </button>
-                </div>
+      {/* MOBILE/TABLET: overlay + drawer (symmetric timing) */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              key="overlay"
+              className="fixed inset-0 z-40 bg-black/30"
+              initial="hidden"
+              animate="show"
+              exit="exit"
+              variants={overlayVariants}
+              onClick={(): void => setMobileOpen(false)}
+            />
+            <motion.aside
+              key="drawer"
+              className="fixed left-0 top-0 z-50 h-[100dvh] w-[85%] max-w-96 bg-white shadow-2xl"
+              initial="hidden"
+              animate="show"
+              exit="exit"
+              variants={drawerVariants}
+            >
+              <div className="flex items-center justify-between border-b px-4 py-3">
+                <Image
+                  src="/assets/home/Logo.jpg"
+                  alt="STELZ"
+                  width={800}
+                  height={200}
+                  priority
+                  className="h-16 w-auto"
+                />
+                <button
+                  aria-label="Close menu"
+                  className="inline-flex size-12 items-center justify-center rounded-lg hover:bg-neutral-100"
+                  onClick={(): void => setMobileOpen(false)}
+                >
+                  <X color={BLUE_HEX} size={34} />
+                </button>
+              </div>
 
-                {/* Mobile Nav Items */}
-                <div className="p-4">
-                  <MobileMenu items={NAV} openItems={openMobile} toggleItem={toggleMobile} />
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-      </header>
+              <nav className="px-2 py-3">
+                <MobileMenu onNavigate={(): void => setMobileOpen(false)} />
+              </nav>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }
 
-/* ───────────────────────── Dropdown Item ───────────────────────── */
-function DropdownItem({
+/* ---------------- Desktop ---------------- */
+
+function DesktopTopItem({
   item,
-  pathname,
+  active,
 }: {
   item: NavLink;
-  pathname: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const hasChildren = !!item.children?.length;
-  const active = isActive(pathname, item.href);
+  active: boolean;
+}): JSX.Element {
+  const [open, setOpen] = useState<boolean>(false);
 
   return (
-    <div
+    <li
       className="relative"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      onMouseEnter={(): void => setOpen(true)}
+      onMouseLeave={(): void => setOpen(false)}
     >
-      {hasChildren ? (
-        <Link
-          href={item.href || "#"}
-          className="flex items-center justify-between px-4 py-3 text-sm font-medium uppercase tracking-wide text-gray-700 transition-colors"
-          style={{
-            backgroundColor: active ? "#0C41AA" : "white",
-            color: active ? "white" : "#4b5563",
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#0C41AA";
-            (e.currentTarget as HTMLAnchorElement).style.color = "white";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.backgroundColor = active ? "#0C41AA" : "white";
-            (e.currentTarget as HTMLAnchorElement).style.color = active ? "white" : "#4b5563";
-          }}
-          onClick={(e) => {
-            if (!item.href) e.preventDefault();
-          }}
-        >
-          <span>{item.label}</span>
-          <span className="text-base font-medium">+</span>
-        </Link>
-      ) : (
-        <Link
-          href={item.href!}
-          className="block px-4 py-3 text-sm font-medium uppercase tracking-wide transition-colors"
-          style={{
-            backgroundColor: active ? "#0C41AA" : "white",
-            color: active ? "white" : "#4b5563",
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#0C41AA";
-            (e.currentTarget as HTMLAnchorElement).style.color = "white";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.backgroundColor = active ? "#0C41AA" : "white";
-            (e.currentTarget as HTMLAnchorElement).style.color = active ? "white" : "#4b5563";
-          }}
-        >
-          {item.label}
-        </Link>
-      )}
-
-      {/* Nested Dropdown */}
-      {hasChildren && open && (
-        <div className="absolute left-full top-0 z-50 ml-1 min-w-60 bg-white shadow-lg">
-          {item.children!.map((child, i) => {
-            const childActive = isActive(pathname, child.href);
-            return (
-              <Link
-                key={i}
-                href={child.href!}
-                className="block px-4 py-3 text-sm font-medium uppercase tracking-wide transition-colors"
-                style={{
-                  backgroundColor: childActive ? "#0C41AA" : "white",
-                  color: childActive ? "white" : "#4b5563",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#0C41AA";
-                  (e.currentTarget as HTMLAnchorElement).style.color = "white";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.backgroundColor = childActive ? "#0C41AA" : "white";
-                  (e.currentTarget as HTMLAnchorElement).style.color = childActive ? "white" : "#4b5563";
-                }}
-              >
-                {child.label}
-              </Link>
-            );
-          })}
-        </div>
-      )}
-    </div>
+      <TopLink item={item} active={active} />
+      <AnimatePresence>
+        {hasKids(item) && open && (
+          <motion.div
+            key={`${item.label}-dd`}
+            className="absolute left-0 top-[calc(100%+12px)] z-50"
+            initial="hidden"
+            animate="show"
+            exit="hidden"
+            variants={dropVariants}
+          >
+            {/* hover bridge */}
+            <div className="absolute -top-3 left-0 h-3 w-full" />
+            <MenuList items={item.children as NavLink[]} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </li>
   );
 }
 
-/* ───────────────────────── Mobile Menu ───────────────────────── */
-function MobileMenu({
-  items,
-  openItems,
-  toggleItem,
+function TopLink({
+  item,
+  active,
 }: {
-  items: NavLink[];
-  openItems: Record<string, boolean>;
-  toggleItem: (key: string) => void;
-}) {
+  item: NavLink;
+  active: boolean;
+}): JSX.Element {
+  // Desktop: smaller font & no gap before '+'
+  const base =
+    "inline-flex items-center gap-1 lg:gap-0 text-[16px] font-medium uppercase tracking-[0.04em] text-neutral-900";
   return (
-    <ul className="space-y-1">
-      {items.map((item, i) => (
-        <MobileMenuItem
-          key={`mobile-${i}`}
-          item={item}
-          depth={0}
-          openItems={openItems}
-          toggleItem={toggleItem}
-        />
-      ))}
+    <Link
+      href={item.href ?? "#"}
+      className={`${base} ${active ? "opacity-90" : "hover:opacity-80"} select-none`}
+    >
+      <span className="inline-flex items-center">
+        {item.label}
+        {item.expandable && (
+          <span className="ml-[2px] text-[18px] font-medium leading-none text-black">+</span>
+        )}
+      </span>
+    </Link>
+  );
+}
+
+/* ---------------- Shared dropdown list ---------------- */
+
+function MenuList({ items }: { items: NavLink[] }): JSX.Element {
+  const onParentOnlyClick = (i: NavLink) => (e: ReactMouseEvent<HTMLAnchorElement>): void => {
+    if (isProductsParentOnly(i) && hasKids(i)) {
+      // prevent navigation for section headers
+      e.preventDefault();
+      e.stopPropagation();
+      // no-op; on desktop the flyout shows via hover, on mobile we handle in MobileMenu
+    }
+  };
+
+  return (
+    <ul className="min-w-56 rounded-xs border border-neutral-200 bg-white py-4 shadow-xl">
+      {items.map((i: NavLink) => {
+        const kids = hasKids(i);
+        return (
+          <li key={i.label} className="relative group/sub">
+            <Link
+              href={i.href ?? "#"}
+              onClick={onParentOnlyClick(i)}
+              className="
+                block px-4 py-4 text-[14px] font-medium uppercase tracking-wide
+                text-neutral-800 transition-colors duration-300
+                lg:hover:bg-[#174b92] lg:hover:text-white
+                focus:bg-[#174b92] focus:text-white active:bg-[#174b92] active:text-white
+              "
+            >
+              <span className="inline-flex w-full items-center gap-2 lg:gap-1">
+                {i.label}
+                {kids && <span className="ml-auto text-[16px] font-medium text-black">+</span>}
+              </span>
+            </Link>
+
+            {kids && (
+              <div
+                className="
+                  absolute left-[calc(100%+8px)] top-0
+                  invisible translate-x-1 opacity-0
+                  group-hover/sub:visible group-hover/sub:translate-x-0 group-hover/sub:opacity-100
+                  transition-[opacity,transform,visibility] duration-300
+                  z-[60]
+                "
+              >
+                <div className="absolute -left-3 top-0 h-full w-3" />
+                <MenuList items={i.children as NavLink[]} />
+              </div>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 }
 
-function MobileMenuItem({
-  item,
-  depth,
-  openItems,
-  toggleItem,
-}: {
-  item: NavLink;
-  depth: number;
-  openItems: Record<string, boolean>;
-  toggleItem: (key: string) => void;
-}) {
-  const hasChildren = !!item.children?.length;
-  const key = `${item.label}-${depth}`;
-  const isOpen = openItems[key];
+/* ---------------- Mobile / Tablet ---------------- */
 
-  return (
-    <li>
-      <div className="flex items-center justify-between">
-        {item.href ? (
+function MobileMenu({ onNavigate }: { onNavigate: () => void }): JSX.Element {
+  const [openKeys, setOpenKeys] = useState<Record<string, boolean>>({});
+  const toggle = (k: string): void =>
+    setOpenKeys((s) => ({ ...s, [k]: !s[k] }));
+
+  const ItemRow = ({
+    item,
+    level = 0,
+  }: {
+    item: NavLink;
+    level?: number;
+  }): JSX.Element => {
+    const kids = hasKids(item);
+    const pad = 12 + level * 12;
+
+    const onLinkClick = (e: ReactMouseEvent<HTMLAnchorElement>): void => {
+      if (kids && isProductsParentOnly(item)) {
+        // parent-only items expand/collapse instead of navigating
+        e.preventDefault();
+        e.stopPropagation();
+        toggle(item.label);
+      } else {
+        onNavigate();
+      }
+    };
+
+    const onToggleBtn = (e: ReactMouseEvent<HTMLButtonElement>): void => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggle(item.label);
+    };
+
+    return (
+      <div className="w-full">
+        <div className="flex items-center" style={{ paddingLeft: pad, paddingRight: 8 }}>
           <Link
-            href={item.href}
-            className="flex-1 py-2.5 text-sm font-medium uppercase tracking-wide text-gray-700"
-            style={{ paddingLeft: depth * 16 + 12 }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#0C41AA")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "#4b5563")}
+            href={item.href ?? "#"}
+            onClick={onLinkClick}
+            className="
+              flex-1 py-2.5 text-[15px] font-medium uppercase tracking-wide text-neutral-900
+              focus:bg-[#174b92] focus:text-white active:bg-[#174b92] active:text-white
+            "
           >
             {item.label}
           </Link>
-        ) : (
-          <span
-            className="flex-1 py-2.5 text-sm font-medium uppercase tracking-wide text-gray-700"
-            style={{ paddingLeft: depth * 16 + 12 }}
-          >
-            {item.label}
-          </span>
-        )}
 
-        {hasChildren && (
-          <button
-            onClick={() => toggleItem(key)}
-            className="px-3 py-2.5 text-gray-600"
-            aria-label={`Toggle ${item.label}`}
-          >
-            <span className={`text-lg font-bold transition-transform inline-block ${isOpen ? "rotate-45" : ""}`}>
-              +
-            </span>
-          </button>
-        )}
+          {kids && (
+            <button
+              aria-label="Expand section"
+              className="ml-2 inline-flex size-8 items-center justify-center rounded-md hover:bg-neutral-100"
+              onClick={onToggleBtn}
+            >
+              {/* mobile + is 20px */}
+              <motion.span
+                className="text-[20px] font-medium text-black"
+                animate={{ rotate: openKeys[item.label] ? 45 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                +
+              </motion.span>
+            </button>
+          )}
+        </div>
+
+        <AnimatePresence initial={false}>
+          {kids && openKeys[item.label] && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: ANIM.accordionDuration, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden pb-0.5"
+            >
+              {(item.children as NavLink[]).map((c: NavLink) => (
+                <ItemRow key={`${item.label}-${c.label}`} item={c} level={level + 1} />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+    );
+  };
 
-      {hasChildren && isOpen && (
-        <ul className="mt-1 space-y-1">
-          {item.children!.map((child, i) => (
-            <MobileMenuItem
-              key={`${key}-child-${i}`}
-              item={child}
-              depth={depth + 1}
-              openItems={openItems}
-              toggleItem={toggleItem}
-            />
-          ))}
-        </ul>
-      )}
-    </li>
+  return (
+    <div className="flex flex-col">
+      {NAV.map((item: NavLink) => (
+        <ItemRow key={item.label} item={item} />
+      ))}
+    </div>
   );
 }

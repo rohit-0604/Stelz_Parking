@@ -1,0 +1,29 @@
+# STELZ Multiparking Robots.txt
+# Search engine crawler directives
+
+# Allow all search engines
+User-agent: *
+Allow: /
+Disallow: /.next/
+Disallow: /api/
+Disallow: /*.json$
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+
+# Specific rules for Google
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Specific rules for Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://stelzparking.com/sitemap.xml
+Sitemap: https://stelzparking.com/sitemap-index.xml
+
+# Cache control
+# Keep max 100KB cache
+Request-rate: 30/60

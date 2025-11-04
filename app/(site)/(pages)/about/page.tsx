@@ -1,17 +1,13 @@
+import PageHeader from "@/app/(site)/components/PageHeader";
+
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-[#1f67c8] to-[#1a4d8f] px-4 py-16 md:py-24">
-        <div className="mx-auto max-w-[1400px]">
-          <h1 className="mb-4 text-3xl md:text-5xl font-bold text-white">
-            About STELZ Multiparking
-          </h1>
-          <p className="text-lg text-blue-100">
-            Discover the story, mission, and values behind our innovative parking solutions
-          </p>
-        </div>
-      </div>
+    <>
+      <PageHeader
+        title="About STELZ Multiparking"
+        breadcrumbLabel="About Us"
+      />
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
 
       {/* Main Content */}
       <div className="mx-auto max-w-[1400px] px-4 py-12 md:py-16">
@@ -80,5 +76,6 @@ export default function AboutPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -8,8 +8,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Poppins", sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,11 +21,57 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
-/* NAV cosmetic helpers (kept minimal; no Tailwind config needed) */
-header.shadow { box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar styling for mobile and all devices */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #747981;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5a5c61;
+}
+
+* { /* Firefox scrollbar styling */
+  scrollbar-color: #84888f #f5f5f5;   
+  scrollbar-width: thin;
+}
+
+/* ------------------------------------------------------------CUSTOM DESIGNS------------------------------------------------ */
+
+/* Improved focus states for accessibility */
+*:focus-visible {
+  outline: 2px solid #0C41AA;
+  outline-offset: 2px;
+}
+
+/* Left-to-right sweeping overlay for the mobile drawer */
+@keyframes overlay-sweep {
+  from { width: 0; }
+  to   { width: 100vw; }
+}
+.mobile-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 100vh;
+  animation: overlay-sweep 250ms ease forwards;
+  /* tint color is set in JSX via Tailwind (bg-black/30) */
+}
 
 /* Scrolling animation for highlights banner */
 @keyframes scroll {
@@ -40,39 +85,4 @@ header.shadow { box-shadow: 0 2px 10px rgba(0,0,0,.06); }
 
 .animate-scroll {
   animation: scroll 40s linear infinite;
-}
-
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Improved focus states for accessibility */
-*:focus-visible {
-  outline: 2px solid #0C41AA;
-  outline-offset: 2px;
-}
-
-/* Custom scrollbar styling for mobile and all devices */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f5f5f5;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #0C41AA;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #0a3585;
-}
-
-/* Firefox scrollbar styling */
-* {
-  scrollbar-color: #0C41AA #f5f5f5;
-  scrollbar-width: thin;
 }

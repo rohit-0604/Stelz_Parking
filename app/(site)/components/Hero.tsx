@@ -3,9 +3,11 @@
 import { content } from "@/data/content";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 export default function Hero() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Auto-rotate backgrounds and taglines - FASTER (3 seconds instead of 5)
   useEffect(() => {
@@ -18,19 +20,30 @@ export default function Hero() {
 
   return (
     <section className="relative h-[calc(100vh-200px)] md:h-[70vh] min-h-[400px] w-full overflow-hidden">
-      {/* Background Images with Crossfade - FASTER */}
+      {/* Background Images with Crossfade - Optimized */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }} // Faster transition
+          transition={{ duration: 0.5 }}
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${content.hero.images[currentIndex]}')`,
-          }}
-        />
+        >
+          {/* Optimized Image using next/image */}
+          <Image
+            src={content.hero.images[currentIndex]}
+            alt={`STELZ Parking - ${content.hero.taglines[currentIndex]}`}
+            fill
+            priority={currentIndex === 0}
+            quality={75}
+            sizes="100vw"
+            className="object-cover"
+            onLoad={() => setIsLoading(false)}
+          />
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/30" />
+        </motion.div>
       </AnimatePresence>
 
       {/* Content */}
