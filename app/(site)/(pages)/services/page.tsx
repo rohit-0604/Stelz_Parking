@@ -4,50 +4,23 @@ import PageHeader from "@/app/(site)/components/PageHeader";
 import ServicesGrid from "./components/ServicesGrid";
 import ContactSidebar from "./components/ContactSidebar";
 import Partners from "./components/Partners";
+import { getRequestLocale } from "@/lib/i18n/request";
+import { getMessages } from "@/data/i18n/messages";
+import { localizedMetadata } from "@/lib/i18n/metadata";
+import { getContent } from "@/lib/i18n/content";
 
-export const metadata: Metadata = {
-  title: "Services | STELZ Multiparking | Parking Solutions & Support",
-  description:
-    "Explore STELZ Multiparking's comprehensive parking services including installation, maintenance, consulting, and 24/7 support for mechanical parking systems.",
-  keywords: [
-    "parking services",
-    "parking solutions",
-    "parking installation",
-    "parking maintenance",
-    "parking consulting",
-  ],
-  alternates: {
-    canonical: "https://stelzparking.com/services",
-  },
-  openGraph: {
-    title: "Services | STELZ Multiparking",
-    description:
-      "Explore STELZ Multiparking's comprehensive parking services including installation, maintenance, consulting, and 24/7 support.",
-    url: "https://stelzparking.com/services",
-    type: "website",
-    images: [
-      {
-        url: "https://stelzparking.com/assets/backgrounds/services.webp",
-        width: 1200,
-        height: 630,
-        alt: "STELZ Parking Services",
-      },
-    ],
-    siteName: "STELZ Multiparking",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Services | STELZ Multiparking",
-    description:
-      "Explore STELZ Multiparking's comprehensive parking services including installation, maintenance, and support.",
-    images: ["https://stelzparking.com/assets/backgrounds/services.webp"],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  return localizedMetadata(locale, "/services", getMessages(locale).pages.services);
+}
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const locale = await getRequestLocale();
+  const copy = getMessages(locale);
+  const { services } = await getContent(locale);
   return (
     <>
-      <PageHeader title="Services" breadcrumbLabel="Services" />
+      <PageHeader title={copy.pages.services.heading} breadcrumbLabel={copy.pages.services.breadcrumb} />
 
       <main className="flex flex-col bg-white">
         <section className="relative my-0 md:my-0 lg:my-0 overflow-x-hidden">
@@ -67,9 +40,10 @@ export default function ServicesPage() {
                 {/* OUTER: positions + translates (keep your lg:translate-x-50) */}
                 <span
                   aria-hidden="true"
+                  data-defect-id={locale === "ar" ? "RTL-055" : undefined}
                   className="
                     pointer-events-none select-none font-extrabold
-                    absolute top-0 left-0 z-0
+                    absolute top-0 start-0 z-0
                     -translate-y-1
                     origin-top-left
                   "
@@ -88,7 +62,7 @@ export default function ServicesPage() {
                       fontSize: "100px",
                     }}
                   >
-                    SERVICES
+                    {copy.pages.services.heading}
                   </span>
                 </span>
 
@@ -112,22 +86,22 @@ export default function ServicesPage() {
                         aria-hidden
                       />
                       <span className="text-[17px] font-medium uppercase tracking-wide">
-                        Services
+                        {copy.pages.services.heading}
                       </span>
                     </div>
 
                     <h2 className="mt-3 text-4xl md:text-[44px] leading-tight font-extrabold tracking-tight text-[#111]">
-                      What We Offer
+                      {copy.services.offer}
                     </h2>
                   </div>
 
                   {/* grid + contact */}
                   <div className="flex flex-col lg:flex-row lg:items-stretch gap-6">
                     <div className="flex-1">
-                      <ServicesGrid />
+                      <ServicesGrid items={services.content} stepLabel={copy.services.step} />
                     </div>
                     <aside className="lg:w-[420px] xl:w-[460px] lg:flex lg:flex-col lg:h-auto">
-                      <ContactSidebar />
+                      <ContactSidebar labels={{ question: copy.services.question, helpText: copy.services.helpText, fullName: copy.product.name, phone: copy.product.phone, email: copy.product.email, place: copy.services.place, message: copy.product.message, send: copy.services.send }} />
                     </aside>
                   </div>
                 </div>
@@ -135,7 +109,7 @@ export default function ServicesPage() {
             </div>
           </div>
         </section>
-        <Partners />
+      <Partners copy={copy.clients} />
       </main>
     </>
   );

@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import {
-  ABOUT_CONTENT,
   type TabContent,
   type AboutSection,
   type RichParagraph,
@@ -40,7 +39,7 @@ function SectionBlock({ section }: { section: AboutSection }) {
       {section.paragraphs?.map((para, idx) => renderParagraph(para, idx))}
 
       {section.items?.length ? (
-        <ul className="list-disc pl-6 space-y-2">
+        <ul className="list-disc ps-6 space-y-2">
           {section.items.map((it, ix) => (
             <li key={ix} className="text-[17px] leading-7 text-[#616161]">
               {it.label ? (
@@ -73,17 +72,9 @@ function TabPanel({ content }: { content: TabContent }) {
 const TAB_KEYS = ["about", "vision", "mission"] as const;
 type TabKey = (typeof TAB_KEYS)[number];
 
-const LABELS: Record<TabKey, string> = {
-  about: "About Us",
-  vision: "Our Vision",
-  mission: "Our Mission",
-};
-
-export default function AboutTabs(): React.JSX.Element {
+export default function AboutTabs({ tabs, labels, sectionsLabel }: { tabs: Record<TabKey, TabContent>; labels: Record<TabKey, string>; sectionsLabel: string }): React.JSX.Element {
   // desktop: controlled tabs; mobile/tablet: accordions
   const [active, setActive] = React.useState<TabKey | null>(null); // no default open
-  const tabs: Record<TabKey, TabContent> = ABOUT_CONTENT.tabs;
-
   // for desktop view only
   const setDesktopActive = (key: TabKey) => setActive(key);
 
@@ -96,7 +87,7 @@ export default function AboutTabs(): React.JSX.Element {
         <div className="hidden md:block">
           <div
             role="tablist"
-            aria-label="About sections"
+            aria-label={sectionsLabel}
             className="relative w-full overflow-hidden bg-[#F5F5F5]"
           >
             <div className="grid grid-cols-3">
@@ -124,13 +115,13 @@ export default function AboutTabs(): React.JSX.Element {
                       />
                     ) : null}
 
-                    {LABELS[key]}
+                    {labels[key]}
 
                     {/* short vertical separator (not on last) with top/bottom gaps */}
                     {idx !== TAB_KEYS.length - 1 ? (
                       <span
                         aria-hidden
-                        className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 h-7 w-px bg-black/15"
+                        className="pointer-events-none absolute end-0 top-1/2 -translate-y-1/2 h-7 w-px bg-black/15"
                         style={{ marginTop: "-2px", marginBottom: "-2px" }}
                       />
                     ) : null}
@@ -171,7 +162,7 @@ export default function AboutTabs(): React.JSX.Element {
                     type="button"
                     aria-expanded={open}
                     onClick={() => setActive(open ? null : key)}
-                    className="w-full flex items-center gap-3 px-4 py-4 text-[18px] text-left"
+                    className="flex w-full items-center gap-3 px-4 py-4 text-start text-[18px]"
                   >
                     {/* chevron LEFT of label */}
                     <span
@@ -198,7 +189,7 @@ export default function AboutTabs(): React.JSX.Element {
                     <span
                       className={open ? "font-semibold text-[#006DDB]" : "text-[#616161]"}
                     >
-                      {LABELS[key]}
+                      {labels[key]}
                     </span>
                   </button>
 

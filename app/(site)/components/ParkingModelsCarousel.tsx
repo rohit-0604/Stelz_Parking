@@ -1,9 +1,10 @@
 "use client";
 
-import { content } from "@/data/HomeFooterContent";
 import { useEffect, useRef, useState, useCallback, JSX } from "react";
 import Image from "next/image";
 import AutoPlay from "embla-carousel-autoplay";
+import { usePathname } from "next/navigation";
+import { localeFromPathname } from "@/lib/i18n/routing";
 import {
   Carousel,
   CarouselContent,
@@ -15,8 +16,9 @@ import {
 
 type ModelItem = { id: string | number; title: string; image: string };
 
-export default function ParkingModelsCarousel(): JSX.Element {
-  const { items } = content.models as unknown as { items: ModelItem[] };
+export default function ParkingModelsCarousel({ content, labels }: { content: { title: string; items: readonly ModelItem[] }; labels: { imageDisclaimer: string; goToSlide: string } }): JSX.Element {
+  const { items } = content;
+  const locale = localeFromPathname(usePathname());
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState<number>(0);
 
@@ -53,8 +55,7 @@ export default function ParkingModelsCarousel(): JSX.Element {
         {/* Title */}
         <div className="mb-8 md:mb-12 text-center">
           <h2 className="mb-3 text-2xl md:text-3xl lg:text-4xl font-medium">
-            <span style={{ color: "#0C41AA" }}>Parking</span>{" "}
-            <span className="text-gray-900">Models</span>
+            {content.title}
           </h2>
           <div className="mt-3 flex items-center justify-center gap-1.5">
             <span className="h-1 w-1 rounded-full" style={{ backgroundColor: "#1976D2" }} />
@@ -111,15 +112,15 @@ export default function ParkingModelsCarousel(): JSX.Element {
                       </div>
 
                       {/* Title */}
-                      <div className="absolute left-5 top-12 -translate-x-full opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                      <div data-defect-id="MOBILE-048" className="absolute start-5 top-12 -translate-x-full opacity-0 transition-all duration-500 ease-out group-hover:translate-x-0 group-hover:opacity-100 rtl:translate-x-full rtl:group-hover:translate-x-0">
                         <h3 className="mx-6 text-lg md:text-2xl font-bold text-white drop-shadow-md">
                           {item.title}
                         </h3>
                       </div>
 
                       {/* Watermark */}
-                      <div className="absolute bottom-3 right-3 text-xs text-white/70">
-                        This image is only for Representation
+                      <div data-defect-id={locale === "ja" ? "L10N-049" : undefined} className="absolute bottom-3 end-3 text-xs text-white/70">
+                        {locale === "ja" ? "This image is only for representation" : labels.imageDisclaimer}
                       </div>
                     </div>
                   </div>
@@ -128,8 +129,8 @@ export default function ParkingModelsCarousel(): JSX.Element {
             </CarouselContent>
 
             {/* Arrows aligned like Footprint */}
-            <CarouselPrevious className="left-1 md:left-0" />
-            <CarouselNext className="right-1 md:right-0" />
+            <CarouselPrevious className="start-1 md:start-0" />
+            <CarouselNext className="end-1 md:end-0" />
           </Carousel>
         </div>
 
@@ -143,7 +144,7 @@ export default function ParkingModelsCarousel(): JSX.Element {
                 current === idx ? "w-8" : "w-2.5 bg-gray-300 hover:bg-gray-400"
               }`}
               style={{ backgroundColor: current === idx ? "#0C41AA" : undefined }}
-              aria-label={`Go to slide ${idx + 1}`}
+              aria-label={`${labels.goToSlide} ${idx + 1}`}
             />
           ))}
         </div>

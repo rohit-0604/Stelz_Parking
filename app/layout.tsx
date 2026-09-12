@@ -1,14 +1,20 @@
 // app/layout.tsx
-import type { Metadata } from "next";
-import Script from "next/script";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import FixedButtons from "@/components/common/FixedButtons";
 import CustomCursor from "@/components/common/CustomCursor";
 import ScrollRestore from "@/components/common/ScrollRestore";
+import HtmlLocaleSync from "@/components/i18n/HtmlLocaleSync";
 import { Poppins } from "next/font/google";
-import { content } from "@/data/HomeFooterContent";
+import { getRequestLocale } from "@/lib/i18n/request";
+import { LOCALE_CONFIG } from "@/lib/i18n/config";
+import { getMessages } from "@/data/i18n/messages";
+import { localizedMetadata, SITE_URL } from "@/lib/i18n/metadata";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
+import { COMPANY_ADDRESSES, COMPANY_CONTACT } from "@/data/i18n/company";
+import { SITE_DEFECT_COUNT } from "@/data/training/siteDefects";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -19,98 +25,59 @@ const poppins = Poppins({
   fallback: ["system-ui", "arial"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(content.meta.siteUrl),
-  title: content.meta.title,
-  description: content.meta.description,
-  keywords: [
-    "STELZ Multiparking",
-    "automated parking",
-    "car parking solutions",
-    "puzzle parking",
-    "stack parking",
-    "mechanical parking",
-    "parking systems India",
-    "Bengaluru parking",
-    "space-saving parking",
-    "smart parking technology",
-  ],
-  authors: [{ name: "STELZ MULTIPARKING PVT LTD" }],
-  creator: "STELZ MULTIPARKING PVT LTD",
-  publisher: "STELZ MULTIPARKING PVT LTD",
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  openGraph: {
-    type: "website",
-    locale: "en_IN",
-    url: content.meta.siteUrl,
-    siteName: "STELZ Multiparking",
-    title: content.meta.title,
-    description: content.meta.description,
-    images: [
-      {
-        url: content.meta.ogImage,
-        width: 1200,
-        height: 630,
-        alt: "STELZ Multiparking - Engineering Tomorrow's Parking",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: content.meta.title,
-    description: content.meta.description,
-    images: [content.meta.ogImage],
-  },
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#174b92",
+  colorScheme: "light",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  const messages = getMessages(locale);
+  return {
+    metadataBase: new URL(SITE_URL),
+    ...localizedMetadata(locale, "/", messages.site),
+    applicationName: "STELZ Multiparking",
+    manifest: "/manifest.webmanifest",
+    icons: {
+      icon: [{ url: "/favicon.ico" }, { url: "/app-icon.svg", type: "image/svg+xml" }],
+      apple: [{ url: "/app-icon.svg", type: "image/svg+xml" }],
+    },
+    appleWebApp: { capable: true, title: "STELZ", statusBarStyle: "default" },
+    authors: [{ name: "STELZ MULTIPARKING PVT LTD" }],
+    creator: "STELZ MULTIPARKING PVT LTD",
+    publisher: "STELZ MULTIPARKING PVT LTD",
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+  };
+}
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getRequestLocale();
+  const messages = getMessages(locale);
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
   return (
-    <html lang="en" className={poppins.variable}>
-      <head>
-        {/* Google Analytics 4 - Replace with your Measurement ID */}
-        {gaId && (
-          <>
-            <Script
-              strategy="afterInteractive"
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-            />
-            <Script
-              id="google-analytics"
-              strategy="afterInteractive"
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('config', '${gaId}', {
-                    page_path: window.location.pathname,
-                    anonymize_ip: true,
-                  });
-                `,
-              }}
-            />
-          </>
-        )}
-      </head>
-      <body className="bg-white text-neutral-900 font-sans">
+    <html lang={LOCALE_CONFIG[locale].htmlLang} dir={LOCALE_CONFIG[locale].direction} className={poppins.variable}>
+      <body className="training-defect-site bg-white text-neutral-900 font-sans" data-intentional-defects={SITE_DEFECT_COUNT}>
+        <HtmlLocaleSync />
         <CustomCursor />
         <Navbar />
           {children}
         <Footer />
         <FixedButtons />
         <ScrollRestore />
+        <GoogleAnalytics measurementId={gaId} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -119,31 +86,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "@type": "Organization",
               name: "STELZ MULTIPARKING PVT LTD",
               alternateName: "STELZ Multiparking",
-              url: content.meta.siteUrl,
-              logo: `${content.meta.siteUrl}/assets/Logo.webp`,
-              description: content.meta.description,
+              url: SITE_URL,
+              logo: `${SITE_URL}/assets/home/Logo.webp`,
+              description: messages.site.description,
               address: [
                 {
                   "@type": "PostalAddress",
-                  addressLocality: "Bengaluru",
-                  addressRegion: "Karnataka",
-                  postalCode: "560098",
-                  streetAddress: content.footer.office.address,
-                  addressCountry: "IN",
+                  addressLocality: COMPANY_ADDRESSES.office.locality,
+                  addressRegion: COMPANY_ADDRESSES.office.region,
+                  postalCode: COMPANY_ADDRESSES.office.postalCode,
+                  streetAddress: COMPANY_ADDRESSES.office.streetAddress,
+                  addressCountry: COMPANY_ADDRESSES.office.countryCode,
                 },
               ],
               contactPoint: {
                 "@type": "ContactPoint",
-                telephone: content.footer.contact.phone,
+                telephone: COMPANY_CONTACT.phones.landline.href,
+                email: COMPANY_CONTACT.email,
                 contactType: "Customer Service",
                 areaServed: "IN",
-                availableLanguage: ["en", "hi"],
+              availableLanguage: Object.values(LOCALE_CONFIG).map((entry) => entry.htmlLang),
               },
               sameAs: [
-                content.footer.contact.socials.linkedin,
-                content.footer.contact.socials.facebook,
-                content.footer.contact.socials.instagram,
-                content.footer.contact.socials.youtube,
+                COMPANY_CONTACT.socials.linkedin,
+                COMPANY_CONTACT.socials.facebook,
+                COMPANY_CONTACT.socials.instagram,
+                COMPANY_CONTACT.socials.youtube,
               ].filter(Boolean),
               founder: {
                 "@type": "Organization",

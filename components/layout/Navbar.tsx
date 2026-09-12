@@ -5,8 +5,12 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { JSX, useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { Menu, X } from "lucide-react";
-import { NAV, type NavLink } from "@/data/NavContent";
+import type { NavLink } from "@/data/NavContent";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { localeFromPathname, stripLocalePrefix } from "@/lib/i18n/routing";
+import { getNavigation } from "@/lib/i18n/navigation";
+import { getMessages } from "@/data/i18n/messages";
 
 const BLUE_HEX = "#174b92";
 const BLUE_BG = "bg-[#174b92]";
@@ -31,8 +35,10 @@ const PRODUCTS_PARENT_ONLY = new Set<string>([
 
 function isActive(pathname: string, href?: string): boolean {
   if (!href) return false;
-  if (href === "/") return pathname === "/";
-  return pathname.startsWith(href);
+  const current = stripLocalePrefix(pathname);
+  const target = stripLocalePrefix(href);
+  if (target === "/") return current === "/";
+  return current === target || current.startsWith(`${target}/`);
 }
 function hasKids(i: NavLink): i is NavLink & { children: NavLink[] } {
   return Array.isArray(i.children) && i.children.length > 0;
@@ -65,19 +71,22 @@ const overlayVariants: Variants = {
   },
 };
 const drawerVariants: Variants = {
-  hidden: { x: "-100%" },
+  hidden: (rtl: boolean) => ({ x: rtl ? "100%" : "-100%" }),
   show: {
     x: 0,
     transition: { duration: ANIM.drawerDuration, ease: [0.22, 1, 0.36, 1], delay: ANIM.drawerDelay },
   },
-  exit: {
-    x: "-100%",
+  exit: (rtl: boolean) => ({
+    x: rtl ? "100%" : "-100%",
     transition: { duration: ANIM.drawerDuration, ease: "easeIn", delay: 0 },
-  },
+  }),
 };
 
 export default function Navbar(): JSX.Element {
   const pathname = usePathname();
+  const locale = localeFromPathname(pathname);
+  const navigation = getNavigation(locale);
+  const messages = getMessages(locale);
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
   const [elevated, setElevated] = useState<boolean>(false);
 
@@ -87,6 +96,20 @@ export default function Navbar(): JSX.Element {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileOpen(false);
+    };
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [mobileOpen]);
 
   return (
     <>
@@ -101,25 +124,22 @@ export default function Navbar(): JSX.Element {
         <div className={`${BLUE_BG} h-1.5`} />
 
         {/* NAV BAR */}
-        <nav className="flex items-center justify-between gap-4 px-4 md:px-7">
+        <nav className="grid min-h-20 grid-cols-[auto_1fr_auto] items-center gap-3 px-4 md:px-7">
           {/* LEFT: Logo */}
-          <div className="flex min-w-[200px] items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <Image
               src="/assets/home/Logo.webp"
               alt="STELZ"
               width={800}
               height={200}
               priority
-              className="h-20 w-auto"
+              className="h-10 w-auto sm:h-14 2xl:h-20"
             />
           </div>
 
-          {/* push links right */}
-          <div className="flex-1" />
-
           {/* Desktop menu */}
-          <ul className="hidden items-center gap-6 lg:flex">
-            {NAV.map((item: NavLink) => (
+          <ul className="hidden min-w-0 items-center justify-center gap-3 2xl:flex">
+            {navigation.map((item: NavLink) => (
               <DesktopTopItem
                 key={item.label}
                 item={item}
@@ -128,14 +148,16 @@ export default function Navbar(): JSX.Element {
             ))}
           </ul>
 
-          {/* Mobile hamburger */}
-          <button
-            aria-label="Open menu"
-            className="lg:hidden inline-flex size-12 items-center justify-center rounded-lg hover:bg-neutral-100"
-            onClick={(): void => setMobileOpen(true)}
-          >
-            <Menu color={BLUE_HEX} size={36} />
-          </button>
+          <div className="flex items-center justify-end gap-2">
+            <LanguageSwitcher />
+            <button
+              aria-label={messages.common.openMenu}
+              className="inline-flex size-11 items-center justify-center rounded-lg hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-[#174b92] 2xl:hidden"
+              onClick={(): void => setMobileOpen(true)}
+            >
+              <Menu color={BLUE_HEX} size={32} />
+            </button>
+          </div>
         </nav>
 
         {/* Bottom rail */}
@@ -169,7 +191,12 @@ export default function Navbar(): JSX.Element {
             />
             <motion.aside
               key="drawer"
-              className="fixed left-0 top-0 z-50 h-dvh w-[85%] max-w-96 bg-white shadow-2xl"
+              className="fixed start-0 top-0 z-50 h-dvh w-[85%] max-w-96 overflow-y-auto overscroll-contain bg-white shadow-2xl"
+              role="dialog"
+              aria-modal="true"
+              aria-label={messages.common.openMenu}
+              custom={false}
+              data-defect-id={locale === "ar" ? "RTL-038 I18N-005" : undefined}
               initial="hidden"
               animate="show"
               exit="exit"
@@ -185,7 +212,8 @@ export default function Navbar(): JSX.Element {
                   className="h-16 w-auto"
                 />
                 <button
-                  aria-label="Close menu"
+                  autoFocus
+                  aria-label={messages.common.closeMenu}
                   className="inline-flex size-12 items-center justify-center rounded-lg hover:bg-neutral-100"
                   onClick={(): void => setMobileOpen(false)}
                 >
@@ -194,7 +222,7 @@ export default function Navbar(): JSX.Element {
               </div>
 
               <nav className="px-2 py-3">
-                <MobileMenu onNavigate={(): void => setMobileOpen(false)} />
+                <MobileMenu items={navigation} expandLabel={messages.common.expandSection} onNavigate={(): void => setMobileOpen(false)} />
               </nav>
             </motion.aside>
           </>
@@ -220,20 +248,24 @@ function DesktopTopItem({
       className="relative"
       onMouseEnter={(): void => setOpen(true)}
       onMouseLeave={(): void => setOpen(false)}
+      onFocus={(): void => setOpen(true)}
+      onBlur={(event): void => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
     >
-      <TopLink item={item} active={active} />
+      <TopLink item={item} active={active} open={open} />
       <AnimatePresence>
         {hasKids(item) && open && (
           <motion.div
             key={`${item.label}-dd`}
-            className="absolute left-0 top-[calc(100%+12px)] z-50"
+            className="absolute start-0 top-[calc(100%+12px)] z-50"
             initial="hidden"
             animate="show"
             exit="hidden"
             variants={dropVariants}
           >
             {/* hover bridge */}
-            <div className="absolute -top-3 left-0 h-3 w-full" />
+            <div className="absolute -top-3 start-0 h-3 w-full" />
             <MenuList items={item.children as NavLink[]} depth={0} />
           </motion.div>
         )}
@@ -245,23 +277,27 @@ function DesktopTopItem({
 function TopLink({
   item,
   active,
+  open,
 }: {
   item: NavLink;
   active: boolean;
+  open: boolean;
 }): JSX.Element {
   const base =
-    "inline-flex items-center gap-0 text-[16px] font-medium uppercase tracking-[0.04em] select-none";
+    "inline-flex items-center gap-0 text-[14px] font-medium uppercase tracking-[0.035em] select-none";
 
   return (
     <Link
       href={item.href ?? "#"}
-      className={`${base} ${active ? "text-[#174b92]" : "text-neutral-900 hover:text-[#174b92]"}`}
+      aria-haspopup={hasKids(item) ? "menu" : undefined}
+      aria-expanded={hasKids(item) ? open : undefined}
+      className={`${base} training-nav-item ${active ? "text-[#174b92]" : "text-neutral-900 hover:text-[#174b92]"}`}
     >
       <span className="inline-flex items-center">
         {item.label}
         {item.expandable && (
           /* plus inherits current link color (hover + active) */
-          <span className="ml-0.5 text-[18px] font-medium leading-none text-current">+</span>
+          <span className="ms-0.5 text-[18px] font-medium leading-none text-current">+</span>
         )}
       </span>
     </Link>
@@ -308,7 +344,7 @@ function MenuList({ items, depth = 0 }: MenuListProps): JSX.Element {
                 {i.label}
                 {kids && (
                   /* plus inherits the item's text color → white when active/hover/focus */
-                  <span className="ml-auto text-[16px] font-medium text-current">+</span>
+                  <span className="ms-auto text-[16px] font-medium text-current">+</span>
                 )}
               </span>
             </Link>
@@ -316,14 +352,15 @@ function MenuList({ items, depth = 0 }: MenuListProps): JSX.Element {
             {kids && (
               <div
                 className="
-                  absolute left-full -ml-px top-0
+                  absolute start-full -ms-px top-0
                   invisible opacity-0
                   group-hover/sub:visible group-hover/sub:opacity-100
+                  group-focus-within/sub:visible group-focus-within/sub:opacity-100
                   transition-[opacity,visibility] duration-300
                   z-60
                 "
               >
-                <div className="absolute -left-px top-0 h-full w-px" />
+                <div className="absolute -start-px top-0 h-full w-px" />
                 <MenuList items={i.children as NavLink[]} depth={depth + 1} />
               </div>
             )}
@@ -337,7 +374,7 @@ function MenuList({ items, depth = 0 }: MenuListProps): JSX.Element {
 
 /* ---------------- Mobile / Tablet ---------------- */
 
-function MobileMenu({ onNavigate }: { onNavigate: () => void }): JSX.Element {
+function MobileMenu({ items, expandLabel, onNavigate }: { items: readonly NavLink[]; expandLabel: string; onNavigate: () => void }): JSX.Element {
   const pathname = usePathname();
   const [openKeys, setOpenKeys] = useState<Record<string, boolean>>({});
   const toggle = (k: string): void => setOpenKeys((s) => ({ ...s, [k]: !s[k] }));
@@ -404,7 +441,7 @@ const ItemRow = ({
           href={item.href ?? "#"}
           onClick={onLinkClick}
           className={[
-            "flex-1 py-2.5 text-[15px] font-medium uppercase tracking-wide transition-colors pl-1.5",
+            "training-nav-item flex-1 py-2.5 text-[15px] font-medium uppercase tracking-wide transition-colors ps-1.5 text-start",
             // Top-level (main) active rule stays the same
             !isChild &&
               (selfActive ? "text-[#174b92]" : "text-neutral-900 hover:text-[#174b92]"),
@@ -422,8 +459,8 @@ const ItemRow = ({
 
         {kids && (
           <button
-            aria-label="Expand section"
-            className="ml-2 inline-flex items-center justify-center rounded-md hover:bg-neutral-100 pr-1.5"
+            aria-label={`${expandLabel}: ${item.label}`}
+            className="ms-2 inline-flex min-h-11 min-w-11 items-center justify-center rounded-md hover:bg-neutral-100 pe-1.5"
             onClick={onToggleBtn}
           >
             <motion.span
@@ -464,7 +501,7 @@ const ItemRow = ({
 
   return (
     <div className="flex flex-col">
-      {NAV.map((item: NavLink) => (
+      {items.map((item: NavLink) => (
         <ItemRow key={item.label} item={item} />
       ))}
     </div>

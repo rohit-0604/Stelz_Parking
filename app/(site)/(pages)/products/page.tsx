@@ -3,60 +3,41 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import Script from "next/script";
 import PageHeader from "@/app/(site)/components/PageHeader";
-import { content } from "@/data/ProductsContent";
+import { getRequestLocale } from "@/lib/i18n/request";
+import { getMessages } from "@/data/i18n/messages";
+import { localizedMetadata, SITE_URL } from "@/lib/i18n/metadata";
+import { localizePath } from "@/lib/i18n/routing";
+import { getContent } from "@/lib/i18n/content";
 
-export const metadata: Metadata = {
-  title: "Products | STELZ Parking Systems",
-  description:
-    "Explore STELZ parking products including stackers, pit stackers, puzzle parking, turn tables, car hoists and more. Browse features, photos and case studies.",
-  alternates: { canonical: "/products" },
-  openGraph: {
-    title: "Products | STELZ Parking Systems",
-    description:
-      "Explore STELZ parking products including stackers, pit stackers, puzzle parking, turn tables, car hoists and more.",
-    url: "/products",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Products | STELZ Parking Systems",
-    description:
-      "Explore STELZ parking products including stackers, pit stackers, puzzle parking, turn tables, car hoists and more.",
-  },
-  keywords: [
-    "parking systems",
-    "stack parking",
-    "pit stacker",
-    "puzzle parking",
-    "turn table",
-    "car hoist",
-    "mechanical parking",
-  ],
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  return localizedMetadata(locale, "/products", getMessages(locale).pages.products);
+}
 
 type Item = { id: number | string; image: string; title: string; link: string };
-const slugify = (s: string) =>
-  s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const locale = await getRequestLocale();
+  const copy = getMessages(locale);
+  const { productsPage: content } = await getContent(locale);
   const items = (content?.models?.items || []) as Item[];
 
   return (
     <>
-      <PageHeader title="Products" breadcrumbLabel="Products" />
+      <PageHeader title={copy.pages.products.heading} breadcrumbLabel={copy.pages.products.breadcrumb} />
 
       {/* JSON-LD */}
       <Script id="ld-products" type="application/ld+json">
         {JSON.stringify({
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: "Products",
-          url: "https://stelzparking.com/products",
+          name: copy.pages.products.heading,
+          url: `${SITE_URL}${localizePath("/products", locale)}`,
           hasPart: items.map((it) => ({
             "@type": "Product",
             name: it.title,
-            url: `https://stelzparking.com/products/${slugify(it.title)}`,
-            image: `https://stelzparking.com${it.image}`,
+            url: `${SITE_URL}${localizePath(`/portfolios/${it.link}`, locale)}`,
+            image: `${SITE_URL}${it.image}`,
             brand: { "@type": "Brand", name: "STELZ" },
           })),
         })}
@@ -66,16 +47,21 @@ export default function ProductsPage() {
         <section className="px-3 md:px-1 xl:px-35 py-8 md:py-26">
           <div className="mx-auto max-w-[1500px] px-[5px]">
             {/* 1 (mobile) -> 3 (tablet) -> 2 (desktop/laptop) */}
-            <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-3 lg:grid-cols-2">
+            <div data-defect-id="MOBILE-050 L10N-010" className="training-products-grid grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-3 lg:grid-cols-2">
               {items.map((item) => {
-                const href = `/portfolios/${item.link}`;
+                const href = localizePath(`/portfolios/${item.link}`, locale);
                 return (
                   <article
                     key={item.id}
                     className="group relative overflow-hidden bg-white"
                   >
+                    <div data-defect-id="L10N-009 L10N-015 L10N-016 I18N-017 L10N-018 I18N-007" className="absolute end-2 top-2 z-10 max-w-[70%] rounded bg-black/70 p-2 text-end text-xs text-white">
+                      <p>$1,234.50 · 25 kms · 0.18%</p>
+                      <p>1 days ago</p>
+                      <p>{[copy.nav.stack, copy.nav.puzzle, copy.nav.automatic].join(", ")}</p>
+                    </div>
                     {/* Image: link wraps the whole image */}
-                    <Link href={href} aria-label={`${item.title} image`} className="block">
+                    <Link href={href} aria-label={`${item.title} ${copy.common.gallery}`} className="block">
                       <div className="relative overflow-hidden">
                         <div
                           className="relative w-full md:h-80 lg:h-[440px]"
@@ -98,31 +84,32 @@ export default function ProductsPage() {
                     {/* LABEL — compact, left-attached, exact look */}
                     <div
                       className="
-                        pointer-events-none absolute left-0 bottom-4
-                        -translate-x-4 opacity-0
+                        pointer-events-none absolute inset-x-2 bottom-2 opacity-100
                         transition-all duration-300 ease-out
-                        group-hover:translate-x-0 group-hover:opacity-100
+                        md:start-0 md:end-auto md:bottom-4 md:-translate-x-4 md:opacity-0
+                        md:group-hover:translate-x-0 md:group-hover:opacity-100
+                        rtl:md:translate-x-4 rtl:md:group-hover:translate-x-0
                       "
                     >
                       <div
                         className="
-                          relative pointer-events-auto inline-flex items-center gap-10
+                          relative pointer-events-auto flex max-w-full items-center gap-3 md:inline-flex md:gap-10
                           bg-white p-3
                           shadow-[0_6px_18px_rgba(0,0,0,0.12)]
                         "
                       >
                         {/* 3px BLACK STRIP only across the label */}
-                        <span className="absolute -top-[3px] left-0 right-0 h-[5px] bg-black" />
+                        <span className="absolute -top-[3px] inset-x-0 h-[5px] bg-black" />
 
                         {/* Title (blue when label is hovered) */}
                         <Link
                           href={href}
                           className="
-                            text-[24px] font-medium leading-none
+                            training-product-title min-w-0 text-base font-medium leading-tight break-words sm:text-lg md:text-[24px] md:leading-none
                             text-gray-900 hover:text-[#006ddb] focus:text-[#006ddb]
                             focus:outline-none
                           "
-                          aria-label={`${item.title} details`}
+                          aria-label={`${item.title} ${copy.product.details}`}
                         >
                           {item.title}
                         </Link>
@@ -130,7 +117,7 @@ export default function ProductsPage() {
                         {/* Plus chip (white circle w/ light border; turns blue on hover) */}
                         <Link
                           href={href}
-                          aria-label={`Open ${item.title}`}
+                          aria-label={`${copy.product.open}: ${item.title}`}
                           className="
                             grid place-items-center size-9 rounded-full
                             border border-gray-200 bg-white

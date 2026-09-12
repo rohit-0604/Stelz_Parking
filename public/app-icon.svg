@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">STELZ</title>
+  <rect width="512" height="512" rx="96" fill="#174b92"/>
+  <path fill="#fff" d="M112 116h288v64H208l192 152v64H112v-64h192L112 180z"/>
+  <rect x="112" y="224" width="288" height="64" fill="#fff"/>
+</svg>

@@ -1,7 +1,7 @@
 // app/(site)/services/components/ContactSidebar.tsx
-"use client";
+type Labels = { question: string; helpText: string; fullName: string; phone: string; email: string; place: string; message: string; send: string };
 
-export default function ContactSidebar() {
+export default function ContactSidebar({ labels }: { labels: Labels }) {
   return (
     <aside aria-labelledby="contact-title" className="relative lg:flex lg:flex-col lg:h-full">
       <div className="relative flex flex-col rounded-md bg-white shadow-sm ring-1 ring-slate-200 lg:h-full">
@@ -12,45 +12,65 @@ export default function ContactSidebar() {
         <div className="flex-1 p-4 sm:p-7 md:p-8">{/* add pb-16 sm:pb-0 if a floating CTA overlaps */}
           {/* 24px title to match grid titles */}
           <h3 id="contact-title" className="text-[24px] leading-snug font-extrabold text-[#111]">
-            Have any Question?
+            {labels.question}
           </h3>
 
           <p className="mt-3 text-slate-600 text-[16px]">
-            The point of using Lorem Ipsum is that it has more-or-less packages
-            normal point of using.
+            {labels.helpText}
           </p>
 
-          <form className="mt-6 space-y-3">
+          <form action={`mailto:info@stelzparking.com?subject=${encodeURIComponent(labels.question)}`} method="post" encType="text/plain" className="mt-6 space-y-3">
             <input
+              name="name"
+              autoComplete="name"
+              dir="auto"
+              required
               type="text"
-              placeholder="Full Name"
+              placeholder={labels.fullName}
               className="w-full rounded-md border border-slate-200 bg-[#F7F7F7] px-4 py-3 text-[16px] placeholder:text-slate-500 outline-none focus:border-[#174b92]"
             />
             <input
+              name="phone"
               type="tel"
-              placeholder="Phone Number"
+              inputMode="tel"
+              autoComplete="tel"
+              required
+              dir="ltr"
+              placeholder={labels.phone}
               className="w-full rounded-md border border-slate-200 bg-[#F7F7F7] px-4 py-3 text-[16px] placeholder:text-slate-500 outline-none focus:border-[#174b92]"
             />
             <input
+              name="email"
               type="email"
-              placeholder="Email Address"
+              inputMode="email"
+              autoComplete="email"
+              required
+              dir="ltr"
+              placeholder={labels.email}
               className="w-full rounded-md border border-slate-200 bg-[#F7F7F7] px-4 py-3 text-[16px] placeholder:text-slate-500 outline-none focus:border-[#174b92]"
             />
             <input
+              name="place"
+              autoComplete="street-address"
+              dir="auto"
               type="text"
-              placeholder="Your Place Name"
+              placeholder={labels.place}
               className="w-full rounded-md border border-slate-200 bg-[#F7F7F7] px-4 py-3 text-[16px] placeholder:text-slate-500 outline-none focus:border-[#174b92]"
             />
 
             <div className="relative">
               <textarea
+                name="message"
+                required
+                dir="ltr"
+                data-defect-id="RTL-056"
                 rows={5}
-                placeholder="Message"
+                placeholder={labels.message}
                 className="w-full rounded-md border border-slate-200 bg-[#F7F7F7] px-4 py-3 text-[16px] placeholder:text-slate-500 outline-none focus:border-[#174b92] resize-y"
               />
               <span
                 aria-hidden
-                className="pointer-events-none absolute bottom-2 left-2 h-4 w-4 opacity-50"
+                className="pointer-events-none absolute bottom-2 start-2 h-4 w-4 opacity-50"
                 style={{
                   background: "currentColor",
                   color: "#9CA3AF",
@@ -67,10 +87,10 @@ export default function ContactSidebar() {
             </div>
 
             <button
-              type="button"
+              type="submit"
               className="inline-flex items-center gap-2 bg-[#1760d6] px-6 py-3 font-semibold text-white shadow-sm hover:opacity-95 active:opacity-90"
             >
-              Send Message <span aria-hidden>→</span>
+              {labels.send} <span className="rtl:rotate-180" aria-hidden>→</span>
             </button>
           </form>
         </div>

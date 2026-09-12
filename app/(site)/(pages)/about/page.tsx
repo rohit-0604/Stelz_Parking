@@ -6,60 +6,35 @@ import AboutTabs from "./components/AboutTabs";
 import Philosophy from "./components/Philosophy";
 import WhyStelz from "./components/WhyStelz";
 import PartnersCarousel from "./components/PartnersCarousel";
-import ABOUT_CONTENT from "@/data/AboutContent";
 import { JSX } from "react";
+import { getRequestLocale } from "@/lib/i18n/request";
+import { getMessages } from "@/data/i18n/messages";
+import { localizedMetadata } from "@/lib/i18n/metadata";
+import { getContent } from "@/lib/i18n/content";
 
-export const metadata: Metadata = {
-  title: "About Us | STELZ Multiparking | Innovative Parking Solutions",
-  description:
-    "Learn about STELZ Multiparking's mission, vision, and commitment to providing innovative, automated parking solutions for modern urban spaces.",
-  keywords: [
-    "about STELZ",
-    "parking company",
-    "STELZ mission",
-    "automated parking solutions",
-    "mechanical parking systems",
-  ],
-  alternates: { canonical: "https://stelzparking.com/about" },
-  openGraph: {
-    title: "About Us | STELZ Multiparking",
-    description:
-      "Learn about STELZ Multiparking's mission, vision, and commitment to providing innovative, automated parking solutions.",
-    url: "https://stelzparking.com/about",
-    type: "website",
-    images: [
-      {
-        url: "https://stelzparking.com/assets/home/Logo.webp",
-        width: 1200,
-        height: 630,
-        alt: "STELZ Multiparking Logo",
-      },
-    ],
-    siteName: "STELZ Multiparking",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "About Us | STELZ Multiparking",
-    description:
-      "Learn about STELZ Multiparking's mission, vision, and commitment to providing innovative, automated parking solutions.",
-    images: ["https://stelzparking.com/assets/home/Logo.webp"],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  return localizedMetadata(locale, "/about", getMessages(locale).pages.about);
+}
 
-export default function AboutUs(): JSX.Element {
+export default async function AboutUs(): Promise<JSX.Element> {
+  const locale = await getRequestLocale();
+  const copy = getMessages(locale);
+  const { about: ABOUT_CONTENT } = await getContent(locale);
   return (
     <>
-      <PageHeader title="About Us" breadcrumbLabel="Who We Are" />
+      <PageHeader title={copy.pages.about.heading} breadcrumbLabel={copy.pages.about.breadcrumb} />
 
       {/* Intro block */}
       <Intro
         intro={ABOUT_CONTENT.intro}
         youtube="https://youtu.be/KQBZgdnIpLU"
+        videoTitle={copy.pages.about.heading}
       />
-      <AboutTabs />
-      <Philosophy />
-      <WhyStelz />
-      <PartnersCarousel />
+      <AboutTabs tabs={ABOUT_CONTENT.tabs} labels={{ about: copy.pages.about.heading, vision: copy.about.vision, mission: copy.about.mission }} sectionsLabel={copy.about.sections} />
+      <Philosophy content={ABOUT_CONTENT.philosophy} />
+      <WhyStelz title={ABOUT_CONTENT.why.title} intro={copy.about.whyIntro} cards={ABOUT_CONTENT.why.cards} />
+      <PartnersCarousel copy={copy.clients} />
       {/* (Next: mount Tabs, Philosophy, Why, Clients...) */}
     </>
   );

@@ -4,6 +4,7 @@
 import Image from "next/image";
 import * as React from "react";
 import type { ProductRecord } from "@/data/Products";
+import type { AppMessages } from "@/data/i18n/messages";
 
 const BLUE = "#0C41AA";
 const RAIL = "#006DDB"
@@ -26,7 +27,7 @@ function Bullseye(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-export default function ProductBody({ p }: { p: ProductRecord }) {
+export default function ProductBody({ p, labels }: { p: ProductRecord; labels: AppMessages["product"] & AppMessages["common"] }) {
   return (
     <div className="space-y-10 md:space-y-12">
       {/* HERO — square, much larger, scales with screen, never cropped */}
@@ -50,18 +51,18 @@ export default function ProductBody({ p }: { p: ProductRecord }) {
 
       {/* DESCRIPTION CARD — blue rail + quote art (fixed) */}
       <section aria-labelledby="summary-title">
-        <h3 id="summary-title" className="sr-only">Summary</h3>
+        <h3 id="summary-title" className="sr-only">{labels.summary}</h3>
 
         <div className="relative overflow-hidden rounded-md bg-[#F7F7F7]">
           {/* left blue rail */}
-          <span aria-hidden className="absolute left-0 top-0 h-full w-[6px] rounded-l-md" style={{ backgroundColor: RAIL }} />
+          <span aria-hidden className="absolute start-0 top-0 h-full w-[6px] rounded-s-md" style={{ backgroundColor: RAIL }} />
 
           {/* quote art bottom-right */}
           <Image
             src="/assets/products/blockquote.webp"
             alt=""
             width={220} height={250}
-            className="pointer-events-none select-none absolute bottom-0 right-5"
+            className="pointer-events-none select-none absolute bottom-0 end-5"
             // Tailwind v4 doesn't ship opacity-15; use inline opacity
           />
 
@@ -74,7 +75,7 @@ export default function ProductBody({ p }: { p: ProductRecord }) {
       {/* FEATURES */}
       <section aria-labelledby="features-title">
         <h3 id="features-title" className="text-[36px] text-[#1F1F1F] tracking-tight">
-          Product Features
+          {labels.features}
         </h3>
         <ul className="mt-8 space-y-4">
           {p.features.map((f, i) => (
@@ -88,7 +89,7 @@ export default function ProductBody({ p }: { p: ProductRecord }) {
 
       {/* GALLERY — 2 square cells, no cropping */}
       <section aria-labelledby="gallery-title">
-        <h3 id="gallery-title" className="sr-only">Gallery</h3>
+        <h3 id="gallery-title" className="sr-only">{labels.gallery}</h3>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           {p.gallery.slice(0, 2).map((g, i) => (
             <div key={i}>
@@ -110,9 +111,9 @@ export default function ProductBody({ p }: { p: ProductRecord }) {
       {/* APPLICATIONS */}
       <section aria-labelledby="applications-title" className="pb-2">
         <h3 id="applications-title" className="text-[36px] font-medium text-[#1F1F1F] tracking-tight">
-          Applications
+          {labels.applications}
         </h3>
-        <div className="mt-8 border-t border-r border-b border-gray-300 bg-white">
+        <div className="mt-8 border-y border-e border-gray-300 bg-white">
           <ul className="p-5 md:p-6 space-y-4">
             {p.applications.map((a, i) => (
               <li key={i} className="flex items-start gap-3 text-[18px] leading-7 text-[#1F1F1F]">

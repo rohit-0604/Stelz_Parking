@@ -1,10 +1,8 @@
 "use client";
 
-import { content } from "@/data/HomeFooterContent";
-
-export default function HighlightsBanner() {
+export default function HighlightsBanner({ highlights }: { highlights: readonly string[] }) {
   // Duplicate highlights for seamless loop without DOM manipulation
-  const duplicatedHighlights = [...content.hero.highlights, ...content.hero.highlights];
+  const duplicatedHighlights = [...highlights, ...highlights];
 
   return (
     <section className="relative w-full overflow-hidden border-y border-gray-200 bg-white py-3">

@@ -4,6 +4,10 @@ import * as React from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react"
+import { usePathname } from "next/navigation"
+import { localeFromPathname } from "@/lib/i18n/routing"
+import { LOCALE_CONFIG } from "@/lib/i18n/config"
+import { getMessages } from "@/data/i18n/messages"
 
 type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
@@ -47,8 +51,11 @@ function Carousel({
   children,
   ...props
 }: React.ComponentProps<"div"> & CarouselProps) {
+  const locale = localeFromPathname(usePathname())
+  const isRtl = LOCALE_CONFIG[locale].direction === "rtl"
   const [carouselRef, api] = useEmblaCarousel(
     {
+      direction: isRtl ? "rtl" : "ltr",
       ...opts,
       axis: orientation === "horizontal" ? "x" : "y",
     },
@@ -75,13 +82,15 @@ function Carousel({
     (event: React.KeyboardEvent<HTMLDivElement>) => {
       if (event.key === "ArrowLeft") {
         event.preventDefault()
-        scrollPrev()
+        if (isRtl) scrollNext()
+        else scrollPrev()
       } else if (event.key === "ArrowRight") {
         event.preventDefault()
-        scrollNext()
+        if (isRtl) scrollPrev()
+        else scrollNext()
       }
     },
-    [scrollPrev, scrollNext]
+    [isRtl, scrollPrev, scrollNext]
   )
 
   React.useEffect(() => {
@@ -142,7 +151,7 @@ function CarouselContent({
     >
       <div
         className={`flex ${
-          orientation === "horizontal" ? "-ml-2 md:-ml-3 lg:-ml-4" : "-mt-4 flex-col"
+          orientation === "horizontal" ? "-ms-2 md:-ms-3 lg:-ms-4" : "-mt-4 flex-col"
         } ${className || ""}`}
         {...props}
       />
@@ -162,7 +171,7 @@ function CarouselItem({
       aria-roledescription="slide"
       data-slot="carousel-item"
       className={`min-w-0 shrink-0 grow-0 basis-full ${
-        orientation === "horizontal" ? "pl-2 md:pl-3 lg:pl-4" : "pt-4"
+        orientation === "horizontal" ? "ps-2 md:ps-3 lg:ps-4" : "pt-4"
       } ${className || ""}`}
       {...props}
     />
@@ -175,6 +184,7 @@ function CarouselPrevious({
   ...props
 }: React.ComponentProps<"button">) {
   const { orientation, scrollPrev, canScrollPrev } = useCarousel()
+  const messages = getMessages(localeFromPathname(usePathname()))
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
     // Only apply hover effect on desktop (md and above, ~768px+)
@@ -196,8 +206,8 @@ function CarouselPrevious({
       data-slot="carousel-previous"
       className={`absolute size-12 rounded-full bg-gray-300 shadow-lg transition-all flex items-center justify-center cursor-pointer ${
         orientation === "horizontal"
-          ? "top-1/2 -left-6 md:-left-8 -translate-y-1/2"
-          : "-top-12 left-1/2 -translate-x-1/2 rotate-90"
+          ? "top-1/2 -start-6 md:-start-8 -translate-y-1/2"
+          : "-top-12 start-1/2 -translate-x-1/2 rotate-90"
       } md:hover:scale-110 ${className || ""}`}
       disabled={!canScrollPrev}
       style={{
@@ -212,7 +222,7 @@ function CarouselPrevious({
       {...props}
     >
       <svg
-        className="h-6 w-6 md:h-8 md:w-8"
+        className="h-6 w-6 md:h-8 md:w-8 rtl:rotate-180"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -224,7 +234,7 @@ function CarouselPrevious({
           d="M15 19l-7-7 7-7"
         />
       </svg>
-      <span className="sr-only">Previous slide</span>
+      <span className="sr-only">{messages.common.previousSlide}</span>
     </button>
   )
 }
@@ -235,6 +245,7 @@ function CarouselNext({
   ...props
 }: React.ComponentProps<"button">) {
   const { orientation, scrollNext, canScrollNext } = useCarousel()
+  const messages = getMessages(localeFromPathname(usePathname()))
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
     // Only apply hover effect on desktop (md and above, ~768px+)
@@ -256,8 +267,8 @@ function CarouselNext({
       data-slot="carousel-next"
       className={`absolute size-12 rounded-full bg-gray-300 shadow-lg transition-all flex items-center justify-center cursor-pointer ${
         orientation === "horizontal"
-          ? "top-1/2 -right-6 md:-right-8 -translate-y-1/2"
-          : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90"
+          ? "top-1/2 -end-6 md:-end-8 -translate-y-1/2"
+          : "-bottom-12 start-1/2 -translate-x-1/2 rotate-90"
       } md:hover:scale-110 ${className || ""}`}
       disabled={!canScrollNext}
       style={{
@@ -272,7 +283,7 @@ function CarouselNext({
       {...props}
     >
       <svg
-        className="h-6 w-6 md:h-8 md:w-8"
+        className="h-6 w-6 md:h-8 md:w-8 rtl:rotate-180"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -284,7 +295,7 @@ function CarouselNext({
           d="M9 5l7 7-7 7"
         />
       </svg>
-      <span className="sr-only">Next slide</span>
+      <span className="sr-only">{messages.common.nextSlide}</span>
     </button>
   )
 }

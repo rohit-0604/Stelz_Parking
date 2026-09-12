@@ -1,13 +1,15 @@
 // app/(site)/(pages)/portfolios/[category]/[slug]/layout.tsx
-import { use } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import PageHeader from "@/app/(site)/components/PageHeader";
-import { getProduct, type ProductCategory } from "@/data/Products";
+import type { ProductCategory } from "@/data/Products";
 import { Linkedin, Facebook, Instagram, Youtube, ArrowRight } from "lucide-react";
-import { content } from "@/data/HomeFooterContent";
+import { COMPANY_CONTACT } from "@/data/i18n/company";
 import { Space_Grotesk } from "next/font/google";
-
-const f = content.footer;
+import { getRequestLocale } from "@/lib/i18n/request";
+import { getMessages } from "@/data/i18n/messages";
+import { localizePath } from "@/lib/i18n/routing";
+import { getContent } from "@/lib/i18n/content";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -15,42 +17,33 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 const socials = [
-  { key: "linkedin", href: f.contact.socials.linkedin, label: "LinkedIn", Icon: Linkedin },
-  { key: "instagram", href: f.contact.socials.instagram, label: "Instagram", Icon: Instagram },
-  { key: "youtube", href: f.contact.socials.youtube, label: "YouTube", Icon: Youtube },
-  { key: "facebook", href: f.contact.socials.facebook, label: "Facebook", Icon: Facebook },
+  { key: "linkedin", href: COMPANY_CONTACT.socials.linkedin, label: "LinkedIn", Icon: Linkedin },
+  { key: "instagram", href: COMPANY_CONTACT.socials.instagram, label: "Instagram", Icon: Instagram },
+  { key: "youtube", href: COMPANY_CONTACT.socials.youtube, label: "YouTube", Icon: Youtube },
+  { key: "facebook", href: COMPANY_CONTACT.socials.facebook, label: "Facebook", Icon: Facebook },
 ].filter((s) => !!s.href);
-
-/** Fixed 8 sidebar buttons (edit labels/hrefs if any slug differs) */
-const RIGHT_BUTTONS = [
-  { label: "Stack parking", href: "/portfolios/stack/stack-parking" },
-  { label: "Puzzle parking", href: "/portfolios/puzzle/puzzle-parking" },
-  { label: "Pit Puzzle", href: "/portfolios/puzzle/pit-puzzle" },
-  { label: "Car Hoist", href: "/portfolios/automatic/car-hoist" },
-  { label: "Slide parking", href: "/portfolios/automatic/slide-parking" },
-  { label: "Turn Table", href: "/portfolios/automatic/turn-table" },
-  { label: "Cantilever parking", href: "/portfolios/stack/cantilever-parking" },
-  { label: "Pit Stacker", href: "/portfolios/stack/pit-stacker" },
-] as const;
 
 /** Narrow string to ProductCategory safely */
 function asCategory(s: string): ProductCategory | null {
   return s === "stack" || s === "puzzle" || s === "automatic" ? s : null;
 }
 
-export default function PortfolioLayout({
+export default async function PortfolioLayout({
   children,
   params,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   // IMPORTANT: Next’s validator expects plain strings here
   params: Promise<{ category: string; slug: string }>;
 }) {
   // unwrap params (Server Component)
-  const { category, slug } = use(params);
+  const { category, slug } = await params;
+  const locale = await getRequestLocale();
+  const copy = getMessages(locale);
   const cat = asCategory(category);
-  const p = cat ? getProduct(cat, slug) : null;
-  const headerTitle = p?.title ?? "Product";
+  const { products } = await getContent(locale);
+  const p = cat ? products.find((item) => item.category === cat && item.slug === slug) : null;
+  const headerTitle = p?.title ?? copy.pages.products.heading;
 
   return (
     <>
@@ -59,7 +52,7 @@ export default function PortfolioLayout({
       <main className="bg-white">
         <section className="mx-auto max-w-[1450px] px-4 md:px-10 py-15 md:py-25">
           {/* sm: stacked; md+: 2 columns with 420px sidebar */}
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_420px] gap-10">
+          <div className="grid min-w-0 grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_420px]">
             {/* LEFT: product body */}
             <div>{children}</div>
 
@@ -68,15 +61,15 @@ export default function PortfolioLayout({
               {/* ===== Our Parking Systems (centered block) ===== */}
               <div className="mx-auto w-full md:max-w-[300px] py-5">
                 <h3 className="mb-6 text-[25px] font-extrabold leading-none tracking-tight text-[#006DDB] text-center">
-                  Our Parking Systems
+                  {copy.product.parkingSystems}
                 </h3>
 
                 <ul className="space-y-4">
-                  {RIGHT_BUTTONS.map((b) => (
-                    <li key={b.href}>
+                  {products.map((product) => (
+                    <li key={product.path}>
                       <Link
-                        href={b.href}
-                        aria-label={b.label}
+                        href={localizePath(product.path, locale)}
+                        aria-label={product.title}
                         className="
                           group relative block w-full overflow-hidden
                           bg-[#006DDB] text-white py-4 px-6 font-semibold text-[18px]
@@ -94,7 +87,7 @@ export default function PortfolioLayout({
                         />
                         {/* content above the sweep */}
                         <span className="relative z-[1] flex items-center justify-center gap-3">
-                          <span>{b.label}</span>
+                          <span>{product.title}</span>
 
                           {/* arrow pass-through animation */}
                           <span className="relative inline-block h-5 w-8 overflow-hidden">
@@ -104,6 +97,7 @@ export default function PortfolioLayout({
                                 absolute inset-0
                                 transition-all duration-500 ease-out
                                 group-hover:translate-x-[14px] group-hover:opacity-0
+                                rtl:rotate-180
                               "
                               strokeWidth={2.4}
                             />
@@ -113,6 +107,7 @@ export default function PortfolioLayout({
                                 absolute inset-0 -translate-x-[14px] opacity-0
                                 transition-all duration-500 ease-out delay-100
                                 group-hover:translate-x-0 group-hover:opacity-100
+                                rtl:rotate-180
                               "
                               strokeWidth={2.4}
                             />
@@ -128,59 +123,83 @@ export default function PortfolioLayout({
               <div className={`${spaceGrotesk.className} w-full md:max-w-[360px] mx-auto border border-neutral-900`}>
                 <div className="px-6 pt-6">
                   <h3 className="text-[30px] font-medium leading-none tracking-tight text-[#0a1a33]">
-                    Contact Now
+                    {copy.product.contactNow}
                   </h3>
                 </div>
 
                 {/* extra gap under title */}
                 <div className="mt-4" />
 
-                <form className="px-8 md:px-10 pb-8 space-y-8">
+                <form action={`mailto:${COMPANY_CONTACT.email}?subject=${encodeURIComponent(headerTitle)}`} method="post" encType="text/plain" className="px-8 md:px-10 pb-8 space-y-8">
                   <label className="block">
                     <span className="mb-2 block text-[15px] font-semibold text-neutral-800">
-                      Name <span className="text-red-500">*</span>
+                      {copy.product.name} <span className="text-red-500">*</span>
                     </span>
                     <input
                       type="text"
+                      name="name"
+                      autoComplete="name"
+                      pattern="[A-Za-z ]+"
+                      maxLength={12}
+                      data-defect-id="I18N-052 I18N-011 L10N-025"
+                      required
                       className="w-full border border-neutral-900 bg-white px-4 py-3 text-[15px] outline-none focus:border-[#174b92] font-[inherit]"
                     />
                   </label>
 
                   <label className="block">
                     <span className="mb-2 block text-[15px] font-semibold text-neutral-800">
-                      Phone Number <span className="text-red-500">*</span>
+                      {copy.product.phone} <span className="text-red-500">*</span>
                     </span>
                     <input
-                      type="tel"
+                      type="number"
+                      name="phone"
+                      autoComplete="tel"
+                      inputMode="numeric"
+                      data-defect-id="L10N-053 L10N-012"
+                      required
+                      dir="ltr"
                       className="w-full border border-neutral-900 bg-white px-4 py-3 text-[15px] outline-none focus:border-[#174b92] font-[inherit]"
                     />
                   </label>
 
+                  <label className="block" data-defect-id="L10N-032">
+                    <span className="mb-2 block text-[15px] font-semibold text-neutral-800">Required parking width</span>
+                    <input type="number" name="parking-width" step="0.1" defaultValue="1.5" className="w-full border border-neutral-900 bg-white px-4 py-3 text-[15px] outline-none focus:border-[#174b92] font-[inherit]" />
+                  </label>
+
                   <label className="block">
                     <span className="mb-2 block text-[15px] font-semibold text-neutral-800">
-                      Email <span className="text-red-500">*</span>
+                      {copy.product.email} <span className="text-red-500">*</span>
                     </span>
                     <input
                       type="email"
+                      name="email"
+                      autoComplete="email"
+                      inputMode="email"
+                      required
+                      dir="ltr"
                       className="w-full border border-neutral-900 bg-white px-4 py-3 text-[15px] outline-none focus:border-[#174b92] font-[inherit]"
                     />
                   </label>
 
                   <label className="block">
                     <span className="mb-2 block text-[15px] font-semibold text-neutral-800">
-                      Comment or Message
+                      {copy.product.message}
                     </span>
                     <textarea
+                      name="message"
                       rows={5}
+                      dir="auto"
                       className="w-full border border-neutral-900 bg-white px-4 py-3 text-[15px] outline-none focus:border-[#174b92] resize-y font-[inherit]"
                     />
                   </label>
 
                   <button
-                    type="button"
+                    type="submit"
                     className="inline-flex items-center justify-center gap-2 bg-[#066AAB] px-6 py-2 text-[20px] font-semibold text-white hover:bg-[#0a3a85] transition font-[inherit]"
                   >
-                    Submit
+                    {copy.product.submit}
                   </button>
                 </form>
               </div>
@@ -192,9 +211,9 @@ export default function PortfolioLayout({
                     href={p.brochureUrl}
                     download
                     className="block w-full text-center bg-[#006DDB] p-5 text-[17px] text-white hover:bg-[#0a3a85] transition"
-                    aria-label={`Download brochure for ${p?.title ?? "Product"}`}
+                    aria-label={`${copy.product.download}: ${p?.title ?? copy.pages.products.heading}`}
                   >
-                    Download S-01 Datasheet
+                    {copy.product.download}
                   </a>
                 </div>
               ) : null}
@@ -202,7 +221,7 @@ export default function PortfolioLayout({
               {/* ===== Socials — match contact width & centering ===== */}
               <div className="w-full md:max-w-[360px] mx-auto bg-[#EBEBEB] p-[40px]">
                 <h3 className="text-[30px] font-extrabold leading-none tracking-tight text-[#0a1a33]">
-                  Follow Us On
+                  {copy.product.follow}
                 </h3>
 
                 <div className="mt-6 flex items-center gap-4">

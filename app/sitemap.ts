@@ -1,80 +1,23 @@
 import type { MetadataRoute } from "next";
 import { PRODUCTS } from "@/data/Products";
+import { LOCALES } from "@/lib/i18n/config";
+import { languageAlternates, localizePath } from "@/lib/i18n/routing";
+import { SITE_URL } from "@/lib/i18n/metadata";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://stelzparking.com";
+  const baseUrl = SITE_URL;
 
-  // Static pages
-  const staticPages: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
+  const staticPaths = ["/", "/about", "/about/r-and-d", "/about/blog", "/products", "/services", "/clients", "/gallery", "/contact"] as const;
+  const entries = [...staticPaths.map((path) => ({ path, priority: path === "/" ? 1 : 0.8 })), ...PRODUCTS.map((product) => ({ path: product.path, priority: 0.7 }))];
+  const staticPages: MetadataRoute.Sitemap = entries.flatMap(({ path, priority }) =>
+    LOCALES.map((locale) => ({
+      url: `${baseUrl}${localizePath(path, locale) === "/" ? "" : localizePath(path, locale)}`,
       lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/about/who-we-are`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/about/r-and-d`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/about/blog`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/products`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/services`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/clients`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/gallery`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-  ];
+      changeFrequency: path === "/" ? "weekly" as const : "monthly" as const,
+      priority,
+      alternates: { languages: Object.fromEntries(Object.entries(languageAlternates(path)).map(([key, value]) => [key, `${baseUrl}${value === "/" ? "" : value}`])) },
+    })),
+  );
 
-  // Dynamic product pages
-  const productPages: MetadataRoute.Sitemap = PRODUCTS.map((product) => ({
-    url: `${baseUrl}${product.path}`,
-    lastModified: new Date(),
-    changeFrequency: "monthly" as const,
-    priority: 0.6,
-  }));
-
-  return [...staticPages, ...productPages];
+  return staticPages;
 }

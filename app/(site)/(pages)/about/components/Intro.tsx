@@ -6,6 +6,7 @@ type Props = {
   intro: IntroContent;
   /** YouTube watch URL or id. Example: "https://youtu.be/KQBZgdnIpLU" or "KQBZgdnIpLU" */
   youtube?: string;
+  videoTitle: string;
 };
 
 function extractYouTubeId(input?: string): string | null {
@@ -39,7 +40,7 @@ function BlueArrow(): React.JSX.Element {
   );
 }
 
-export default function Intro({ intro, youtube }: Props): React.JSX.Element {
+export default function Intro({ intro, youtube, videoTitle }: Props): React.JSX.Element {
   const ytId = extractYouTubeId(youtube);
   const ytSrc = ytId
     ? [
@@ -63,7 +64,7 @@ export default function Intro({ intro, youtube }: Props): React.JSX.Element {
                 <iframe
                   className="absolute inset-0 h-full w-full"
                   src={ytSrc}
-                  title="STELZ Multiparking Intro Video"
+                  title={videoTitle}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerPolicy="strict-origin-when-cross-origin"
                   allowFullScreen

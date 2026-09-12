@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { Space_Grotesk } from "next/font/google";
 import { ChevronRight } from "lucide-react";
-import { ABOUT_CONTENT, type PhilosophyStep } from "@/data/AboutContent";
+import type { PhilosophyContent, PhilosophyStep } from "@/data/AboutContent";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -40,12 +40,11 @@ const STEP_IMAGES: Record<string, string> = {
   "05": "/assets/aboutUs/05.webp",
 };
 
-const TABS = ABOUT_CONTENT.philosophy.steps as PhilosophyStep[];
-
 /** Shared content width so tabs align with the paragraph width */
 const CONTENT_W = "max-w-[900px]";
 
-export default function AboutPhilosophy(): React.JSX.Element {
+export default function AboutPhilosophy({ content }: { content: PhilosophyContent }): React.JSX.Element {
+  const steps = content.steps as PhilosophyStep[];
   const [active, setActive] = React.useState<string | null>("01");
 
   const toggle = (id: string): void => {
@@ -53,8 +52,8 @@ export default function AboutPhilosophy(): React.JSX.Element {
   };
 
   const activeStep: PhilosophyStep | undefined = React.useMemo(
-    () => (active ? TABS.find((s) => s.id === active) : undefined),
-    [active]
+    () => (active ? steps.find((s) => s.id === active) : undefined),
+    [active, steps]
   );
 
   return (
@@ -78,12 +77,12 @@ export default function AboutPhilosophy(): React.JSX.Element {
                 <div className="flex items-center justify-center gap-2 text-[#006DDB]">
                   <BlueArrow />
                   <span className="text-[18px] font-medium tracking-wide uppercase">
-                    {ABOUT_CONTENT.philosophy.title}
+                    {content.title}
                   </span>
                 </div>
 
                 <div className="mt-4 space-y-5 text-center">
-                  {ABOUT_CONTENT.philosophy.body.split("\n").map((p, i) => (
+                  {content.body.split("\n").map((p, i) => (
                     <p
                       key={i}
                       className="mx-auto text-[18px] leading-8 text-[#616161] font-medium max-w-[900px]"
@@ -97,7 +96,7 @@ export default function AboutPhilosophy(): React.JSX.Element {
               {/* ---------- DESKTOP TABS (lg+) ---------- */}
               <div className={`${CONTENT_W} mx-auto mt-8 hidden lg:block`}>
                 <div className="grid grid-cols-5 bg-white">
-                  {TABS.map((t, idx) => {
+                  {steps.map((t, idx) => {
                     const isActive = active === t.id;
                     return (
                       <button
@@ -117,7 +116,7 @@ export default function AboutPhilosophy(): React.JSX.Element {
                         {isActive ? (
                           <span
                             aria-hidden
-                            className="absolute left-0 right-0 top-0 h-[3px] bg-[#006DDB]"
+                            className="absolute inset-x-0 top-0 h-[3px] bg-[#006DDB]"
                           />
                         ) : null}
 
@@ -126,7 +125,7 @@ export default function AboutPhilosophy(): React.JSX.Element {
                           <span>{t.id}</span>
                           <ChevronRight
                             className={[
-                              "ml-1 h-4 w-4 transition-all duration-700",
+                              "ms-1 h-4 w-4 transition-all duration-700 rtl:rotate-180",
                               isActive
                                 ? "opacity-100 translate-x-0 text-[#006DDB]"
                                 : "opacity-0 -translate-x-2 text-[#006DDB] group-hover:opacity-100 group-hover:translate-x-0",
@@ -137,8 +136,8 @@ export default function AboutPhilosophy(): React.JSX.Element {
                         </span>
 
                         {/* vertical divider (except last) */}
-                        {idx < TABS.length - 1 ? (
-                          <span className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 h-7 w-px bg-black/15" />
+                        {idx < steps.length - 1 ? (
+                          <span className="pointer-events-none absolute end-0 top-1/2 -translate-y-1/2 h-7 w-px bg-black/15" />
                         ) : null}
                       </button>
                     );
@@ -180,7 +179,7 @@ export default function AboutPhilosophy(): React.JSX.Element {
               {/* ---------- MOBILE/TABLET ACCORDION (<= lg) ---------- */}
               <div className={`${CONTENT_W} mx-auto mt-6 lg:hidden`}>
                 <ul className="w-[95%] mx-auto divide-y divide-black/10 rounded-none bg-white ring-1 ring-black/10">
-                  {TABS.map((t) => {
+                  {steps.map((t) => {
                     const open = active === t.id;
                     return (
                       <li key={t.id}>

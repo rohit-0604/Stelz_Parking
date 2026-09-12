@@ -55,7 +55,7 @@ function Logo({ name }: { name: string }) {
     <div className="relative w-full h-24 sm:h-28 md:h-32 lg:h-36 xl:h-40">
       <Image
         src={src}
-        alt={`${name} logo`}
+        alt={name}
         fill
         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
         className={IMG_CLASSES}         
@@ -65,7 +65,7 @@ function Logo({ name }: { name: string }) {
   );
 }
 
-export default function PartnersCarousel() {
+export default function PartnersCarousel({ copy }: { copy: { partners: string; trustedBy: string; intro: string } }) {
   // Init the autoplay plugin on the client only
   const [autoplay, setAutoplay] = useState<ReturnType<typeof AutoPlay> | null>(null);
   const autoplayRef = useRef<ReturnType<typeof AutoPlay> | null>(null);
@@ -91,18 +91,16 @@ export default function PartnersCarousel() {
           <div className="flex items-center justify-center gap-2">
             <BlueArrow />
             <span className="text-xs md:text-sm tracking-[0.18em] text-[#006DDB] font-semibold uppercase">
-              Partners
+              {copy.partners}
             </span>
           </div>
 
           <h2 className="mt-2 md:mt-3 text-[26px] md:text-[34px] font-extrabold tracking-tight text-gray-900">
-            Partners Who Trust STELZ
+            {copy.trustedBy}
           </h2>
 
-          <p className="mt-3 md:mt-4 w-full text-base md:text-lg leading-7 md:leading-8 text-neutral-600 md:hover:text-red-500">
-            We take pride in collaborating with industry leaders who trust Stelz Parking for innovative and
-            reliable car parking solutions. Our partnerships reflect a shared commitment to quality, efficiency,
-            and long-term value across every project.
+          <p className="mt-3 w-full text-base leading-7 text-neutral-600 md:mt-4 md:text-lg md:leading-8">
+            {copy.intro}
           </p>
         </div>
 
@@ -121,11 +119,11 @@ export default function PartnersCarousel() {
             className="w-full"
           >
             {/* pair track -ml with slide pl so gutters don't force single-slide view */}
-            <CarouselContent className="-ml-2 md:-ml-3">
+            <CarouselContent className="-ms-2 md:-ms-3">
               {loopLogos.map((name, i) => (
                 <CarouselItem
                   key={`${name}-${i}`}
-                  className="!basis-1/2 md:!basis-1/4 lg:!basis-1/6 pl-2 md:pl-3"
+                  className="!basis-1/2 ps-2 md:!basis-1/4 md:ps-3 lg:!basis-1/6"
                 >
                   <div className="group flex items-center justify-center py-4 md:py-6">
                     <Logo name={name} />

@@ -11,10 +11,10 @@ import {
   CarouselNext,
   type CarouselApi,
 } from "@/components/carousel/carousel-context";
-import { content } from "@/data/GalleryContent";
+type ConceptSection = typeof import("@/data/GalleryContent").content.concepts;
 
-export default function ConceptCarousel() {
-  const { title, items } = content.concepts;
+export default function ConceptCarousel({ content, slideLabel }: { content: ConceptSection; slideLabel: string }) {
+  const { title, items } = content;
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const autoplayRef = useRef(
@@ -63,7 +63,7 @@ export default function ConceptCarousel() {
               {items.map((m) => (
                 <CarouselItem
                   key={`${m.id}-${m.image}`}
-                  className="basis-full sm:basis-1/2 lg:basis-1/3 pl-2 md:pl-0"
+                  className="basis-full ps-2 sm:basis-1/2 md:ps-0 lg:basis-1/3"
                 >
                   <div className="relative group">
                     {/* Rounded, no shadow, slightly smaller height */}
@@ -91,8 +91,8 @@ export default function ConceptCarousel() {
               ))}
             </CarouselContent>
 
-            <CarouselPrevious className="left-1 md:left-1.5" />
-            <CarouselNext className="right-1 md:right-1.5" />
+            <CarouselPrevious className="start-1 md:start-1.5" />
+            <CarouselNext className="end-1 md:end-1.5" />
           </Carousel>
 
           <div className="pointer-events-auto mt-8 flex items-center justify-center gap-2">
@@ -104,7 +104,7 @@ export default function ConceptCarousel() {
                   current === idx ? "w-8" : "w-2.5 bg-gray-300 hover:bg-gray-400"
                 }`}
                 style={{ backgroundColor: current === idx ? "#0C41AA" : undefined }}
-                aria-label={`Go to slide ${idx + 1}`}
+                aria-label={`${slideLabel} ${idx + 1}`}
               />
             ))}
           </div>

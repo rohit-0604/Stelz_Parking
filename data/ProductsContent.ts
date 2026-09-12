@@ -10,7 +10,7 @@ export const content = {
       { id: 5, image: "/assets/parking_models/CantileverParking.webp", title: "Cantilever Parking", link:"stack/cantilever-parking" },
       { id: 6, image: "/assets/parking_models/TurnTable.webp", title: "Turn Table", link:"automatic/turn-table" },
       { id: 7, image: "/assets/parking_models/CarHoist.webp", title: "Car Hoist", link:"automatic/car-hoist" },
-      { id: 8, image: "/assets/parking_models/PitPuzzle.webp", title: "Pit Puzzle", link:"puzzle/pit-puzzle" },
+      { id: 8, image: "/assets/parking_models/PitPuzzle.webp", title: "Pit Puzzle", link:"puzzle/puzzle-parking" },
       { id: 9, image: "/assets/parking_models/PuzzleParking.webp", title: "Puzzle Parking", link:"puzzle/puzzle-parking" },
       { id: 10, image: "/assets/parking_models/StackParking.webp", title: "Stack Parking", link:"stack/stack-parking" },
       { id: 11, image: "/assets/parking_models/OP-01.webp", title: "OP -01", link:"puzzle/op-01" },

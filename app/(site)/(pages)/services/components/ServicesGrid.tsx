@@ -1,14 +1,15 @@
 // app/(site)/services/components/ServicesGrid.tsx
 "use client";
 
-import { services } from "@/data/ServicesContent";
 import { Space_Grotesk } from "next/font/google";
+type ServiceItem = (typeof import("@/data/ServicesContent").services.content)[number];
 
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], weight: ["700"] });
 
 function StepBadge({ n }: { n: number }) {
   return (
     <div
+      data-defect-id="L10N-054"
       className={`inline-flex h-12 w-10 items-center justify-center rounded-full bg-[#1760d6] text-white text-[15px] font-semibold ${spaceGrotesk.className}`}
     >
       {String(n).padStart(2, "0")}
@@ -16,8 +17,7 @@ function StepBadge({ n }: { n: number }) {
   );
 }
 
-export default function ServicesGrid() {
-  const items = services.content;
+export default function ServicesGrid({ items, stepLabel }: { items: readonly ServiceItem[]; stepLabel: string }) {
 
   return (
     <div className="relative p-0">
@@ -35,9 +35,9 @@ export default function ServicesGrid() {
                 // row divider
                 isSecondRow ? "border-t border-slate-200" : "",
                 // vertical grid line only before right column
-                isRightCol ? "md:border-l md:border-slate-200" : "",
+                isRightCol ? "md:border-s md:border-slate-200" : "",
                 // 👇 padding from the vertical grid line
-                isRightCol ? "md:pl-6" : "md:pr-6",
+                isRightCol ? "md:ps-6" : "md:pe-6",
               ]
                 .filter(Boolean)
                 .join(" ")}
@@ -45,7 +45,7 @@ export default function ServicesGrid() {
               <div className="flex items-center gap-3">
                 <StepBadge n={idx + 1} />
                 <span className="text-[36px] tracking-wide text-slate-300/60 leading-none">
-                  STEP
+                  {stepLabel}
                 </span>
               </div>
 

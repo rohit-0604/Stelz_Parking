@@ -11,18 +11,21 @@ import {
   CarouselNext,
   type CarouselApi,
 } from "@/components/carousel/carousel-context";
-import { content } from "@/data/HomeFooterContent";
-
-export default function FootprintCarousel() {
-  const { projects } = content.footprint as {
-    projects: Array<{
+import type { Locale } from "@/lib/i18n/config";
+import { formatNumber } from "@/lib/i18n/format";
+type FootprintContent = {
+  title: string;
+  projects: readonly {
       id: string | number;
       name: string;
       image: string;
       location: string;
       spaces?: string | number;
-    }>;
-  };
+  }[];
+};
+
+export default function FootprintCarousel({ content, labels, locale }: { content: FootprintContent; labels: { carSpaces: string; location: string; goToSlide: string }; locale: Locale }) {
+  const { projects } = content;
 
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
@@ -59,8 +62,7 @@ export default function FootprintCarousel() {
         {/* Title block */}
         <div className="mb-6 text-center">
           <h2 className="text-[35px] font-medium tracking-tight text-gray-900">
-            <span style={{ color: "#0C41AA" }}>STELZ</span>{" "}
-            <span className="text-gray-900">Footprint</span>
+            {content.title}
           </h2>
           <div className="mt-3 flex items-center justify-center gap-1.5">
             <span className="h-1 w-1 rounded-full" style={{ backgroundColor: "#1976D2" }} />
@@ -83,7 +85,7 @@ export default function FootprintCarousel() {
                 <CarouselItem
                   key={project.id}
                   /* 1 / 2 / 3 / 4 / 5 across at base/sm/md/xl/2xl */
-                  className="basis-full sm:basis-1/2 md:basis-1/4 xl:basis-1/5 pl-2 md:pl-0"
+                  className="basis-full ps-2 sm:basis-1/2 md:basis-1/4 md:ps-0 xl:basis-1/5"
                 >
                   {/* Reserve bottom space so floating info card never overlaps content.
                       % padding scales with width on small screens; fixed space on md+. */}
@@ -115,7 +117,7 @@ export default function FootprintCarousel() {
                     {/* Floating info card */}
                     <div
                       className="
-                        absolute -right-2 md:-right-4 bottom-5 z-10
+                        absolute -end-2 md:-end-4 bottom-5 z-10
                         w-[78%] sm:w-[72%] md:w-[68%]
                         rounded-2xl bg-[#F7F7F7] p-5 md:p-3
                         shadow-none
@@ -129,11 +131,11 @@ export default function FootprintCarousel() {
                       <div className="mt-2 text-[13px] leading-6">
                         {project.spaces ? (
                           <p className="text-gray-600">
-                            <span className="font-medium">Car Spaces</span> – {project.spaces}
+                            <span className="font-medium" data-defect-id="I18N-008">{labels.carSpaces}</span> – <span data-defect-id={locale === "ar" ? "L10N-047 L10N-003" : undefined}>{locale === "ar" ? new Intl.NumberFormat("en-US").format(Number.parseInt(String(project.spaces).replace(/\D/g, ""), 10)) : formatNumber(locale, Number.parseInt(String(project.spaces).replace(/\D/g, ""), 10))}</span>
                           </p>
                         ) : null}
                         <p className="text-gray-500">
-                          <span className="font-medium">Location</span> – {project.location}
+                          <span className="font-medium">{labels.location}</span> – {project.location}
                         </p>
                       </div>
                     </div>
@@ -143,8 +145,8 @@ export default function FootprintCarousel() {
             </CarouselContent>
 
             {/* Arrows */}
-            <CarouselPrevious className="left-1 md:left-0" />
-            <CarouselNext className="right-1 md:right-0" />
+            <CarouselPrevious className="start-1 md:start-0" />
+            <CarouselNext className="end-1 md:end-0" />
           </Carousel>
 
           {/* Dots */}
@@ -157,7 +159,7 @@ export default function FootprintCarousel() {
                   current === idx ? "w-8" : "w-2.5 bg-gray-300 hover:bg-gray-400"
                 }`}
                 style={{ backgroundColor: current === idx ? "#0C41AA" : undefined }}
-                aria-label={`Go to slide ${idx + 1}`}
+                aria-label={`${labels.goToSlide} ${idx + 1}`}
               />
             ))}
           </div>

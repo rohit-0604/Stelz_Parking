@@ -3,45 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import PageHeader from "@/app/(site)/components/PageHeader";
 import { ArrowRight } from "lucide-react";
+import { getRequestLocale } from "@/lib/i18n/request";
+import { getMessages } from "@/data/i18n/messages";
+import { localizedMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = {
-  title: "Our Clients | STELZ Multiparking | Trusted Partners",
-  description:
-    "Discover the trusted clients and partners who rely on STELZ Multiparking's innovative automated parking systems. Read real testimonials and success stories.",
-  keywords: [
-    "STELZ clients",
-    "parking clients",
-    "client testimonials",
-    "parking partners",
-    "case studies",
-  ],
-  alternates: {
-    canonical: "https://stelzparking.com/clients",
-  },
-  openGraph: {
-    title: "Our Clients | STELZ Multiparking",
-    description:
-      "Discover the trusted clients and partners who rely on STELZ Multiparking's innovative automated parking systems.",
-    url: "https://stelzparking.com/clients",
-    type: "website",
-    images: [
-      {
-        url: "https://stelzparking.com/assets/home/Logo.webp",
-        width: 1200,
-        height: 630,
-        alt: "STELZ Multiparking Clients",
-      },
-    ],
-    siteName: "STELZ Multiparking",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Our Clients | STELZ Multiparking",
-    description:
-      "Discover the trusted clients and partners who rely on STELZ Multiparking's innovative automated parking systems.",
-    images: ["https://stelzparking.com/assets/home/Logo.webp"],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  return localizedMetadata(locale, "/clients", getMessages(locale).pages.clients);
+}
 
 
 /* ---------- LOGO ORDER ---------- */
@@ -130,7 +99,7 @@ function DocLogo({ name }: { name: string }) {
       <div className="absolute inset-0 flex items-center justify-center p-6 md:p-7">
         <Image
           src={src}
-          alt={`${name} logo`}
+          alt={name}
           fill
           className="object-contain"
           sizes="(max-width: 640px) 44vw, (max-width: 1024px) 22vw, 12vw"
@@ -140,10 +109,12 @@ function DocLogo({ name }: { name: string }) {
   );
 }
 
-export default function ClientsPage() {
+export default async function ClientsPage() {
+  const locale = await getRequestLocale();
+  const copy = getMessages(locale);
   return (
     <>
-      <PageHeader title="Our Clients" breadcrumbLabel="Our Clients" />
+      <PageHeader title={copy.pages.clients.heading} breadcrumbLabel={copy.pages.clients.breadcrumb} />
 
       {/* ===================== PARTNERS ===================== */}
       <section
@@ -155,18 +126,16 @@ export default function ClientsPage() {
           <div className="flex items-center justify-center gap-2">
             <BlueArrow />
             <span className="text-xs md:text-sm tracking-[0.18em] text-[#006DDB] font-semibold uppercase">
-              Partners
+              {copy.clients.partners}
             </span>
           </div>
 
           <h2 className="mt-2 md:mt-3 text-3xl md:text-[55px] font-extrabold tracking-tight text-gray-900">
-            Partners Who Trust Stelz
+            {copy.clients.trustedBy}
           </h2>
 
-          <p className="mt-3 md:mt-4 w-full text-base md:text-lg leading-7 md:leading-8 text-neutral-600 hover:text-red-500">
-            We take pride in collaborating with industry leaders who trust Stelz Parking for innovative and
-            reliable car parking solutions. Our partnerships reflect a shared commitment to quality, efficiency,
-            and long-term value across every project.
+          <p className="mt-3 w-full text-base leading-7 text-neutral-600 md:mt-4 md:text-lg md:leading-8">
+            {copy.clients.intro}
           </p>
         </div>
 
@@ -188,25 +157,23 @@ export default function ClientsPage() {
           <div className="flex items-center gap-2">
             <BlueArrow />
             <span className="text-xs md:text-[15px] tracking-[0.18em] text-[#006DDB] font-semibold uppercase">
-              Testimonials
+              {copy.clients.testimonials}
             </span>
           </div>
 
           <div className="mt-4 md:mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-gray-900 leading-tight">
-              Real Stories. Real
-              <br className="hidden md:block" />
-              Satisfaction.
+              {copy.clients.stories}
             </h2>
 
             <Link
-              href="https://google.com"
+              href="https://www.google.com/search?q=STELZ+Multiparking+Bengaluru+reviews"
               target="_blank"
               rel="noopener noreferrer"
               className="self-start md:self-auto inline-flex items-center justify-center rounded-sm bg-[#006DDB] gap-4 md:gap-5 px-9 py-5 text-white font-medium hover:bg-[#0a3a85] transition"
             >
-              More Reviews
-              <ArrowRight className="h-6 w-6" strokeWidth={2.25} />
+              {copy.clients.moreReviews}
+              <ArrowRight className="h-6 w-6 rtl:rotate-180" strokeWidth={2.25} />
             </Link>
           </div>
 
@@ -220,7 +187,7 @@ export default function ClientsPage() {
                 <iframe
                   className="h-full w-full"
                   src={src}
-                  title={`Testimonial Video ${i + 1}`}
+                  title={`${copy.clients.video} ${i + 1}`}
                   loading="lazy"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerPolicy="strict-origin-when-cross-origin"

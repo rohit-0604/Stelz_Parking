@@ -11,10 +11,10 @@ import {
   CarouselNext,
   type CarouselApi,
 } from "@/components/carousel/carousel-context";
-import { content } from "@/data/GalleryContent";
+type GallerySection = typeof import("@/data/GalleryContent").content.gallery;
 
-export default function GalleryCarousel() {
-  const { title, items } = content.gallery;
+export default function GalleryCarousel({ content, slideLabel }: { content: GallerySection; slideLabel: string }) {
+  const { title, items } = content;
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const autoplayRef = useRef(
@@ -64,7 +64,7 @@ export default function GalleryCarousel() {
               {items.map((it) => (
                 <CarouselItem
                   key={it.id}
-                  className="basis-full sm:basis-1/2 lg:basis-1/3 pl-2 md:pl-0"
+                  className="basis-full ps-2 sm:basis-1/2 md:ps-0 lg:basis-1/3"
                 >
                   {/* Rounded, no shadow, slightly smaller height */}
                   <div className="group overflow-hidden ">
@@ -84,8 +84,8 @@ export default function GalleryCarousel() {
             </CarouselContent>
 
             {/* Arrows tucked slightly inside */}
-            <CarouselPrevious className="left-1 md:left-0" />
-            <CarouselNext className="right-1 md:right-0" />
+            <CarouselPrevious className="start-1 md:start-0" />
+            <CarouselNext className="end-1 md:end-0" />
           </Carousel>
 
           {/* Dots */}
@@ -98,7 +98,7 @@ export default function GalleryCarousel() {
                   current === idx ? "w-8" : "w-2.5 bg-gray-300 hover:bg-gray-400"
                 }`}
                 style={{ backgroundColor: current === idx ? "#0C41AA" : undefined }}
-                aria-label={`Go to slide ${idx + 1}`}
+                aria-label={`${slideLabel} ${idx + 1}`}
               />
             ))}
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ABOUT_CONTENT, type WhyCard } from "@/data/AboutContent";
+import type { WhyCard } from "@/data/AboutContent";
 
 /* Fixed two-digit tags to avoid 10/20 quirks */
 const DIGITS: Record<number, string> = {
@@ -34,12 +34,10 @@ function MaskIcon({ src, className = "" }: { src: string; className?: string }) 
   );
 }
 
-const CARDS: WhyCard[] = ABOUT_CONTENT.why.cards;
-
 /* same horizontal padding as AboutTabs */
 const WRAP = "mx-auto max-w-[1450px] px-4 md:px-6 lg:px-10";
 
-export default function WhyStelz(): React.JSX.Element {
+export default function WhyStelz({ title, intro, cards }: { title: string; intro: string; cards: WhyCard[] }): React.JSX.Element {
   return (
     <section
       className="relative"
@@ -55,18 +53,16 @@ export default function WhyStelz(): React.JSX.Element {
       <div className={`relative ${WRAP} py-10`}>
         <header className="text-center">
           <h2 className="text-[30px] md:text-[36px] font-bold tracking-1 text-white">
-            Why <span className="text-[#008BFF]">Stelz Multiparking</span>
+            {title}
           </h2>
           <p className="mt-3 text-[16px] md:text-[17px] text-white/85">
-            At Stelz, we go beyond just building parking systems — we create smart,
-            space-efficient, and future-ready solutions tailored to modern infrastructure
-            needs. Here’s why clients across India trust us:
+            {intro}
           </p>
         </header>
 
         {/* cards: stack on mobile; equal height across rows */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-          {CARDS.map((card) => (
+          {cards.map((card) => (
             <article
               key={card.id}
               className="group h-full min-h-[200px] rounded-sm bg-white/98 backdrop-blur ring-1 ring-black/5 shadow-sm transition-shadow hover:shadow-lg p-6"

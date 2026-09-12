@@ -10,9 +10,8 @@
  * });
  */
 
-type EventData = {
-  [key: string]: string | number | boolean | undefined | object | any[];
-};
+type AnalyticsValue = string | number | boolean | null | undefined | AnalyticsValue[] | { [key: string]: AnalyticsValue };
+type EventData = { [key: string]: AnalyticsValue };
 
 /**
  * Track custom events in Google Analytics 4
@@ -39,6 +38,8 @@ export const trackPageView = (pagePath: string, pageTitle?: string) => {
     window.gtag("event", "page_view", {
       page_path: pagePath,
       page_title: pageTitle,
+      page_location: window.location.href,
+      language: document.documentElement.lang,
     });
   }
 };

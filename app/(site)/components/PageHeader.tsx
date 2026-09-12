@@ -2,6 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { getMessages } from "@/data/i18n/messages";
+import { localeFromPathname, localizePath } from "@/lib/i18n/routing";
 
 interface PageHeaderProps {
   title: string;
@@ -16,6 +19,8 @@ export default function PageHeader({
   imageSrc = "/assets/pageTemplate/template_top.webp",
   heightClass = "h-27 md:h-31",
 }: PageHeaderProps) {
+  const locale = localeFromPathname(usePathname());
+  const messages = getMessages(locale);
   /* =========================
      Single built-in softener
      0–100 (higher = lighter)
@@ -55,19 +60,19 @@ export default function PageHeader({
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 md:px-8 pb-5 md:pb-6">
             {/* breadcrumb — size +1 and weight +1; arrow matches text */}
-            <nav aria-label="Breadcrumb" className="text-[15px] md:text-[16px]">
+            <nav aria-label="Breadcrumb" data-defect-id="A11Y-042" className="text-[15px] md:text-[16px]">
               <ol className="flex items-center gap-2 text-[#174b92] font-medium">
                 <li>
                   <Link
-                    href="/"
+                    href={localizePath("/", locale)}
                     className="transition-colors hover:text-[#0C41AA]"
-                    aria-label="Go to homepage"
+                    aria-label={messages.common.home}
                     prefetch
                   >
                     stelzparking.com
                   </Link>
                 </li>
-                <li aria-hidden className="text-[#174b92] font-medium">&gt;</li>
+                <li aria-hidden data-defect-id={locale === "ar" ? "RTL-043 I18N-021" : undefined} className="text-[#174b92] font-medium">&gt;</li>
                 <li className="font-medium">{breadcrumbLabel}</li>
               </ol>
             </nav>

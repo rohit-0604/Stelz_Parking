@@ -55,7 +55,7 @@ function DocLogo({
   );
 }
 
-export default function Clients(): JSX.Element {
+export default function Clients({ copy }: { copy: { trustedBy: string; intro: string } }): JSX.Element {
   const [autoplay, setAutoplay] =
     useState<ReturnType<typeof AutoPlay> | null>(null);
   const autoplayRef = useRef<ReturnType<typeof AutoPlay> | null>(null);
@@ -87,15 +87,12 @@ export default function Clients(): JSX.Element {
         {/* Header & Text Wrapper: Centered to match the image */}
         <div className="w-full mb-12 text-center">
           <h2 className="text-[40px] font-extrabold tracking-tight text-[#1F1F1F]">
-            Clients Who Trust Stelz
+            {copy.trustedBy}
           </h2>
 
           {/* Paragraph: Centered, text-lg, constrained width for readability */}
           <p className="mt-5 text-lg leading-8 text-[#616161] hover:text-red-500 mx-auto max-w-8xl">
-            We take pride in collaborating with industry leaders who trust Stelz
-            Parking for innovative and reliable car parking solutions. Our
-            partnerships reflect a shared commitment to quality, efficiency, and
-            long-term value across every project.
+            {copy.intro}
           </p>
         </div>
 
@@ -111,12 +108,12 @@ export default function Clients(): JSX.Element {
           plugins={autoplay ? [autoplay] : []}
           className="w-full"
         >
-          <CarouselContent className="-ml-2 md:-ml-3">
+          <CarouselContent className="-ms-2 md:-ms-3">
             {logos.map((name, i) => (
               <CarouselItem
                 key={`${name}-${i}`}
                 // Mobile: 2 items (!basis-1/2), MD: 4 items, LG: 6 items
-                className="!basis-1/2 md:!basis-1/4 lg:!basis-1/6 pl-2 md:pl-3"
+                className="!basis-1/2 ps-2 md:!basis-1/4 md:ps-3 lg:!basis-1/6"
               >
                 <div className="flex items-center justify-center py-2 group h-full">
                   <DocLogo name={name} />
