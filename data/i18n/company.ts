@@ -1,16 +1,16 @@
 import type { Locale } from "@/lib/i18n/config";
 
 export const COMPANY_CONTACT = {
-  email: "info@stelzparking.com",
+  email: "training@example.com",
   phones: {
-    landline: { href: "+918050056701", display: "+91 80 5005 6701" },
-    mobile: { href: "+919036581605", display: "+91 90365 81605" },
+    landline: { href: "+910000000000", display: "+91 00 0000 0000" },
+    mobile: { href: "+910000000001", display: "+91 00000 00001" },
   },
   socials: {
-    linkedin: "https://www.linkedin.com/company/stlezparking/?viewAsMember=true",
-    instagram: "https://www.instagram.com/stelz_multiparking/?igsh=MXM2YmV3YWFmeTVoaw%3D%3D#",
-    youtube: "https://www.youtube.com/@stelzparking",
-    facebook: "https://www.facebook.com/people/STELZ-Parking/61553166070631/",
+    linkedin: "https://example.com/social/linkedin",
+    instagram: "https://example.com/social/instagram",
+    youtube: "https://example.com/social/youtube",
+    facebook: "https://example.com/social/facebook",
   },
 } as const;
 
@@ -18,17 +18,17 @@ export type CompanyAddressKey = "office" | "factory";
 
 export const COMPANY_ADDRESSES = {
   office: {
-    streetAddress: "No. 1955, 2nd Floor, 5th Stage, BEML Layout, Rajarajeshwari Nagar",
-    locality: "Bengaluru",
-    region: "Karnataka",
-    postalCode: "560098",
+    streetAddress: "123 Localization Avenue, Suite 400, Test District",
+    locality: "Sample City",
+    region: "Test State",
+    postalCode: "000000",
     countryCode: "IN",
   },
   factory: {
-    streetAddress: "Sy. No. 56/2, Mr Rama and Sri M. Maramkrishnappa Layout, Kere Road, Dasanapura Hobli, Machohalli Village",
-    locality: "Bengaluru",
-    region: "Karnataka",
-    postalCode: "560091",
+    streetAddress: "Plot 456, Automation Industrial Park, Demo Zone",
+    locality: "Sample City",
+    region: "Test State",
+    postalCode: "000001",
     countryCode: "IN",
   },
 } as const;
@@ -44,8 +44,8 @@ const INDIA_NAME: Record<Locale, string> = {
 };
 
 const ADDRESS_LINES: Record<CompanyAddressKey, readonly string[]> = {
-  office: ["No. 1955, 2nd Floor", "5th Stage, BEML Layout", "Rajarajeshwari Nagar", "Bengaluru 560098", "Karnataka"],
-  factory: ["Sy. No. 56/2, Mr Rama and Sri M. Maramkrishnappa Layout", "Kere Road, Dasanapura Hobli", "Machohalli Village", "Bengaluru 560091", "Karnataka"],
+  office: ["123 Localization Avenue, Suite 400", "Test District", "Sample City 000000", "Test State"],
+  factory: ["Plot 456, Automation Industrial Park", "Demo Zone", "Sample City 000001", "Test State"],
 };
 
 export function getCompanyAddress(locale: Locale, key: CompanyAddressKey): readonly string[] {

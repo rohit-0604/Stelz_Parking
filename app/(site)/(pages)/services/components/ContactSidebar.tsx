@@ -1,4 +1,6 @@
 // app/(site)/services/components/ContactSidebar.tsx
+import { COMPANY_CONTACT } from "@/data/i18n/company";
+
 type Labels = { question: string; helpText: string; fullName: string; phone: string; email: string; place: string; message: string; send: string };
 
 export default function ContactSidebar({ labels }: { labels: Labels }) {
@@ -19,7 +21,7 @@ export default function ContactSidebar({ labels }: { labels: Labels }) {
             {labels.helpText}
           </p>
 
-          <form action={`mailto:info@stelzparking.com?subject=${encodeURIComponent(labels.question)}`} method="post" encType="text/plain" className="mt-6 space-y-3">
+          <form action={`mailto:${COMPANY_CONTACT.email}?subject=${encodeURIComponent(labels.question)}`} method="post" encType="text/plain" className="mt-6 space-y-3">
             <input
               name="name"
               autoComplete="name"

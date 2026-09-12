@@ -17,7 +17,7 @@ const copy = {
   },
   about: {
     introTitle: "WILLKOMMEN BEI STELZ MULTIPARKING",
-    introBody: "STELZ Parking entwickelt, fertigt, installiert und wartet moderne mechanische Parksysteme. Von Bengaluru aus liefern wir zuverlässige, platzsparende Lösungen für Wohn-, Gewerbe- und Infrastrukturprojekte.",
+    introBody: "STELZ Parking entwickelt, fertigt, installiert und wartet moderne mechanische Parksysteme. Von Beispielstadt aus liefern wir zuverlässige, platzsparende Lösungen für Wohn-, Gewerbe- und Infrastrukturprojekte.",
     overview: ["Urbane Parklösungen neu gedacht", "Wir verbinden präzise Technik mit intelligenter Flächennutzung und schaffen sichere Parksysteme für wachsende Städte."],
     expertise: ["Unsere Kompetenz", "Unser Leistungsspektrum reicht von Beratung und Konstruktion über Fertigung und Montage bis zu Inbetriebnahme und Wartung."],
     commitment: ["Unser Anspruch", "Innovation, Qualität, Zuverlässigkeit, Nachhaltigkeit und persönliche Betreuung bestimmen jede Projektphase."],

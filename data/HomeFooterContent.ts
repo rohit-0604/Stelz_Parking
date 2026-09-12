@@ -69,23 +69,23 @@ export const content = {
     office: {
       title: "Office Address",
       address:
-        "No. 1955, 2nd Floor, 5th Stage, BEML Layout, Rajarajeshwari Nagar, Bengaluru 560098.",
+        "123 Localization Avenue, Suite 400, Test District, Sample City 000000, Test State.",
     },
     factory: {
       title: "Factory Address",
       address:
-        "Sy. No. 56/2, Mr Rama and Sri.M.Maramkrishnappa Layout, Kere Road, Dasanapura Hobli, Machohalli Village, Bengaluru 560091.",
+        "Plot 456, Automation Industrial Park, Demo Zone, Sample City 000001, Test State.",
     },
     contact: {
       title: "Contact Info",
-      phone: "080-50056701",
-      mobile: "+91 90365 81605",
-      email: "info@stelzparking.com",
+      phone: "00-00000000",
+      mobile: "+91 00000 00001",
+      email: "training@example.com",
       socials: {
-        linkedin: "https://www.linkedin.com/company/stlezparking/?viewAsMember=true",
-        instagram: "https://www.instagram.com/stelz_multiparking/?igsh=MXM2YmV3YWFmeTVoaw%3D%3D#",
-        youtube: "https://www.youtube.com/@stelzparking",
-        facebook: "https://www.facebook.com/people/STELZ-Parking/61553166070631/",
+        linkedin: "https://example.com/social/linkedin",
+        instagram: "https://example.com/social/instagram",
+        youtube: "https://example.com/social/youtube",
+        facebook: "https://example.com/social/facebook",
       },
     },
     copyright: "© 2025 Published by STELZ MULTIPARKING PVT LTD. All rights reserved.",
